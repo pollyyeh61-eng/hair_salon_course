@@ -420,7 +420,7 @@
                     content: '了解如何快速完成一份有效的市場調查，並將結果應用到實際的沙龍經營中。',
                     points: 50,
                     completed: false,
-                    videoUrl1: 'https://drive.google.com/drive/folders/1IZTzaasvMcfeZ_1jMYhQ70Rc14UEYDOs'
+                    videoUrl1: 'https://drive.google.com/file/d/1U8qQb6Ob_0pLR-KxtTLDnYcuh0fqqFtW/view?usp=sharing'
                 },
                 {
                     title: '2. 沙龍服務設計',
