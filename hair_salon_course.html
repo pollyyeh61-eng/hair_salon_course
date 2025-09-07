@@ -423,29 +423,29 @@
                     videoUrl1: 'https://drive.google.com/file/d/1U8qQb6Ob_0pLR-KxtTLDnYcuh0fqqFtW/view?usp=sharing'
                 },
                 {
-                    title: '2. 沙龍服務設計',
-                    subtitle: '打造獨一無二的專屬服務',
-                    content: '設計差異化的服務內容，並結合會員制，創造顧客無法抗拒的價值。',
+                    title: '2. 目標客群分析',
+                    subtitle: '了解潛在顧客的一個重要步驟',
+                    content: '目標客群分析是針對你的美髮創業展店來識別。',
                     points: 75,
                     completed: false,
-                    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4'
+                    videoUrl: 'https://drive.google.com/file/d/1K4_D47lq7gVnBl-OFApHuedFwgC3KAjV/view?usp=sharing'
                 },
                 {
-                    title: '實作：會員方案設計',
-                    subtitle: '將理論化為實際，創造您的第一個會員方案',
-                    content: '應用所學，設計一個完整的沙龍會員預存方案，包含服務、價格與行銷策略。',
+                    title: '3. 競爭者研究',
+                    subtitle: '制定有效策略的重要步驟',
+                    content: '競爭者研究是瞭解你的美髮創業展店在市場環境中的位置。',
                     isAction: true,
                     points: 100,
                     completed: false,
-                    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4'
+                    videoUrl: 'https://drive.google.com/file/d/1O5YKOSNwJkiSZS_4sjJvEI0dwKD-CxnR/view?usp=sharing'
                 },
                 {
-                    title: '3. 案例實作',
-                    subtitle: '從實際案例中學習成功與失敗的經驗',
-                    content: '分析成功沙龍的會員經營案例，並從中提煉可複製的策略。',
+                    title: '4. 行業趨勢與需求評估',
+                    subtitle: '需求評估',
+                    content: '行業趨勢與需求評估對於美髮創業展店的成功至關重要。',
                     points: 150,
                     completed: false,
-                    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4'
+                    videoUrl: 'https://drive.google.com/file/d/1cC2envJ3VySRqNahyUsLbST1U5Nw-T2I/view?usp=sharing'
                 },
                 {
                     title: '實作：模擬預約系統',
