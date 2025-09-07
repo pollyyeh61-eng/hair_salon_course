@@ -413,12 +413,14 @@
             currentModuleIndex: 0,
             modules: [
                 {
-                    title: '1. 會員經濟原理',
-                    subtitle: '深入了解會員制度的核心價值',
-                    content: '學習如何透過會員制建立穩定客源與長期關係，掌握美髮沙龍會員經濟的基礎。',
+                    title: '1. 市場調查',
+                    subtitle: '我的目標客戶是誰？',
+                    subtitle: '我的競爭對手是誰？',
+                     subtitle: '市場上有什麼空白需求可以滿足？',
+                    content: '了解如何快速完成一份有效的市場調查，並將結果應用到實際的沙龍經營中。',
                     points: 50,
                     completed: false,
-                    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4'
+                    videoUrl1: 'https://drive.google.com/drive/folders/1IZTzaasvMcfeZ_1jMYhQ70Rc14UEYDOs'
                 },
                 {
                     title: '2. 沙龍服務設計',
@@ -715,4 +717,3 @@
     </script>
 </body>
 </html>
-
