@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>美髮經營課程</title>
+    <title>美髮經營遊戲化課程</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap');
@@ -308,7 +308,7 @@
         <!-- 核心目標與標題 -->
         <div class="text-center mb-8">
             <h1 class="title">美髮經營策略家</h1>
-            <p class="subtitle">美髮經營遊戲化課程 | 讓您成為頂尖沙龍管理者！</p>
+            <p class="subtitle">美髮經營課程 | 讓您成為頂尖沙龍管理者！</p>
         </div>
 
         <!-- 遊戲化數據顯示區 -->
@@ -378,7 +378,6 @@
         import { getFirestore, doc, getDoc, setDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Your Firebase project configuration.
-        // 您必須將這裡的設定替換為您自己 Firebase 專案的資訊
         const firebaseConfig = {
             apiKey: "“AIzaSyCOhBN9TH3UJSOSx5XVyQ08f_2RUckvXYU” ",
             authDomain: "holyhairsalon-f73bf.firebaseapp.com",
@@ -465,7 +464,7 @@
                     videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4'
                 },
                 {
-                    title: '期末專案：案例分析報告',
+                    title: '期末專案：創業計劃書',
                     subtitle: '提交您的最終成果，展現學習成就',
                     content: '撰寫一份完整的案例分析報告，展現您對沙龍經營策略的理解與應用能力。',
                     isAction: true,
