@@ -297,6 +297,10 @@
             font-size: 1.5rem;
             line-height: 1;
         }
+        /* 新增：用於隱藏/顯示按鈕 */
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body class="p-4 sm:p-8">
@@ -358,25 +362,38 @@
                 </video>
             </div>
             <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-                <button id="complete-task-btn" class="module-button w-full sm:w-auto bg-green-600 hover:bg-green-700">完成任務並領取點數</button>
+                <!-- 影片看完後才會出現的提示文字 -->
+                <p id="video-complete-message" class="hidden text-center text-sm text-green-600 font-bold">影片已播放完畢，您可以領取點數了！</p>
+                <!-- 在影片播放結束前，此按鈕會被隱藏 -->
+                <button id="complete-task-btn" class="module-button w-full sm:w-auto bg-green-600 hover:bg-green-700 hidden">完成任務並領取點數</button>
                 <button id="close-modal-btn" class="module-button w-full sm:w-auto bg-gray-500 hover:bg-gray-600">返回課程</button>
             </div>
         </div>
     </div>
 
     <script type="module">
+        // Import Firebase modules. These are hosted on Google's CDN for easy access.
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Firebase Initialization
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        // Your Firebase project configuration.
+        // 您必須將這裡的設定替換為您自己 Firebase 專案的資訊
+        const firebaseConfig = {
+            apiKey: "“AIzaSyCOhBN9TH3UJSOSx5XVyQ08f_2RUckvXYU” ",
+            authDomain: "holyhairsalon-f73bf.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID",
+            measurementId: "YOUR_MEASUREMENT_ID"
+        };
         
         let db, auth;
         let userId = '';
+        const app_id = "hair_salon_course"; // A fixed app ID for this project.
 
+        // Initialize Firebase services and handle potential errors.
         try {
             const app = initializeApp(firebaseConfig);
             db = getFirestore(app);
@@ -387,7 +404,7 @@
             document.getElementById('status-display').textContent = '初始化失敗，請檢查設定。';
         }
 
-        const gameDataCollection = `artifacts/${appId}/users/`;
+        const gameDataCollection = `artifacts/${app_id}/users/`;
 
         // Game State and Module Definitions
         let gameState = {
@@ -481,6 +498,7 @@
         const videoPlayer = document.getElementById('video-player');
         const completeTaskBtn = document.getElementById('complete-task-btn');
         const closeModalBtn = document.getElementById('close-modal-btn');
+        const videoCompleteMessage = document.getElementById('video-complete-message');
         let currentModuleIndex = -1;
 
         // --- Firebase Integration Functions ---
@@ -499,7 +517,6 @@
                     gameState.points = savedState.points;
                     gameState.currentModuleIndex = savedState.currentModuleIndex;
                     
-                    // Restore completed modules from saved data
                     if (savedState.modules) {
                         gameState.modules = savedState.modules;
                     }
@@ -623,6 +640,10 @@
             videoPlayer.src = videoUrl;
             videoModal.classList.remove('hidden');
             videoModal.classList.add('visible');
+            
+            // 影片模態視窗開啟時，隱藏「完成任務」按鈕和提示文字
+            completeTaskBtn.classList.add('hidden');
+            videoCompleteMessage.classList.add('hidden');
         }
 
         // Close the video modal
@@ -650,6 +671,13 @@
             updateUI();
             closeVideoModal();
         }
+        
+        // --- 新增：監聽影片播放結束事件 ---
+        videoPlayer.addEventListener('ended', () => {
+            // 當影片播放結束時，顯示「完成任務」按鈕和提示文字
+            completeTaskBtn.classList.remove('hidden');
+            videoCompleteMessage.classList.remove('hidden');
+        });
 
         // Event listeners for video modal buttons
         completeTaskBtn.addEventListener('click', completeTask);
@@ -673,11 +701,7 @@
                 await loadGameState();
             } else {
                 try {
-                    if (initialAuthToken) {
-                        await signInWithCustomToken(auth, initialAuthToken);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
+                    await signInAnonymously(auth);
                 } catch (error) {
                     console.error("Authentication error: ", error);
                     userIdDisplay.textContent = '使用者ID: 認證失敗';
