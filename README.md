@@ -129,7 +129,7 @@
             transition: transform 0.2s, box-shadow 0.2s;
             cursor: pointer;
         }
-        .module-card:hover {
+        .module-card:not(.locked):hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
@@ -155,6 +155,7 @@
             line-height: 1.25rem;
             font-style: italic;
             margin-bottom: 1rem;
+            color: #6b7280;
         }
         .module-content {
             font-size: 0.875rem;
@@ -176,9 +177,12 @@
             border-radius: 9999px;
             font-weight: 600;
             color: white;
-            transition-property: background-color;
-            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-            transition-duration: 150ms;
+            transition: background-color 0.15s ease-in-out;
+            border: none;
+        }
+        .module-button:disabled {
+            cursor: not-allowed;
+            background-color: #9ca3af;
         }
         .locked {
             filter: grayscale(80%);
@@ -187,32 +191,20 @@
             color: #9ca3af;
             border-color: #d1d5db;
         }
-        .locked .lock-icon {
-            display: block;
-        }
-        .unlocked .lock-icon {
-            display: none;
-        }
-        .locked button {
-            background-color: #9ca3af;
-        }
         .completed {
             background-color: #f0fdf4;
             color: #166534;
             border-color: #22c55e;
-        }
-        .completed button {
-            background-color: #22c55e;
         }
         .uncompleted {
             background-color: #f5f3ff;
             color: #6b21a8;
             border-color: #8b5cf6;
         }
-        .uncompleted button {
+        .uncompleted .module-button {
             background-color: #7c3aed;
         }
-        .uncompleted button:hover {
+        .uncompleted .module-button:hover {
             background-color: #6d28d9;
         }
         .message-container {
@@ -232,7 +224,6 @@
         .message-title {
             font-weight: 700;
         }
-        /* Video Modal Styles */
         .video-modal {
             position: fixed;
             top: 0;
@@ -271,6 +262,7 @@
             margin-bottom: 1rem;
             border-radius: 1rem;
             overflow: hidden;
+            background-color: #000;
         }
         .video-player-container video {
             position: absolute;
@@ -280,24 +272,6 @@
             height: 100%;
             border-radius: 1rem;
         }
-        .close-button {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background-color: #fca5a5;
-            color: white;
-            border: none;
-            width: 2.5rem;
-            height: 2.5rem;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            font-size: 1.5rem;
-            line-height: 1;
-        }
-        /* 新增：用於隱藏/顯示按鈕 */
         .hidden {
             display: none;
         }
@@ -305,13 +279,11 @@
 </head>
 <body class="p-4 sm:p-8">
     <div class="container">
-        <!-- 核心目標與標題 -->
         <div class="text-center mb-8">
             <h1 class="title">美髮經營策略家</h1>
             <p class="subtitle">美髮經營課程 | 讓您成為頂尖沙龍管理者！</p>
         </div>
 
-        <!-- 遊戲化數據顯示區 -->
         <div class="grid-container">
             <div class="data-card">
                 <p class="data-label">當前等級</p>
@@ -331,13 +303,11 @@
             </div>
         </div>
         
-        <!-- 使用者 ID 與狀態顯示區 -->
         <div class="text-center text-sm text-gray-500 mb-8">
             <p id="user-id-display" class="break-words">使用者ID: 載入中...</p>
             <p id="status-display" class="font-bold text-blue-500">正在連接...</p>
         </div>
 
-        <!-- 課程模組區 -->
         <div class="modules-container" id="modules-container">
             <div id="loading-spinner" class="text-center py-10">
                 <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-purple-500 mx-auto"></div>
@@ -345,386 +315,20 @@
             </div>
         </div>
 
-        <!-- 訊息與提示區 -->
         <div id="message-container" class="message-container">
             <p class="message-title">恭喜！</p>
             <p id="message-text">您已完成本模組！</p>
         </div>
     </div>
 
-    <!-- Video Modal -->
-    <div id="video-modal" class="video-modal hidden">
+    <div id="video-modal" class="video-modal">
         <div class="video-modal-content">
             <h3 id="video-modal-title" class="text-2xl font-bold text-center mb-4 text-gray-800">影片標題</h3>
             <div class="video-player-container">
-                <video id="video-player" controls>
+                <video id="video-player" controls controlsList="nodownload">
                     您的瀏覽器不支援影片播放。
                 </video>
             </div>
             <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-                <!-- 影片看完後才會出現的提示文字 -->
-                <p id="video-complete-message" class="hidden text-center text-sm text-green-600 font-bold">影片已播放完畢，您可以領取點數了！</p>
-                <!-- 在影片播放結束前，此按鈕會被隱藏 -->
-                <button id="complete-task-btn" class="module-button w-full sm:w-auto bg-green-600 hover:bg-green-700 hidden">完成任務並領取點數</button>
-                <button id="close-modal-btn" class="module-button w-full sm:w-auto bg-gray-500 hover:bg-gray-600">返回課程</button>
-            </div>
-        </div>
-    </div>
-
-    <script type="module">
-        // Import Firebase modules. These are hosted on Google's CDN for easy access.
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-   // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyCOhBN9TH3UJSOSx5XVyQ08f_2RUckvXYU",
-  authDomain: "holyhairsalon-f73bf.firebaseapp.com",
-  projectId: "holyhairsalon-f73bf",
-  storageBucket: "holyhairsalon-f73bf.firebasestorage.app",
-  messagingSenderId: "960169055224",
-  appId: "1:960169055224:web:4f8a45c0d3e31a93bf3c0d",
-  measurementId: "G-BC8J4V9NLP"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-        };
-        
-        let db, auth;
-        let userId = '';
-        const app_id = "hair_salon_course"; // A fixed app ID for this project.
-
-        // Initialize Firebase services and handle potential errors.
-        try {
-            const app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-            setLogLevel('Debug');
-        } catch (error) {
-            console.error("Firebase initialization failed:", error);
-            document.getElementById('status-display').textContent = '初始化失敗，請檢查設定。';
-        }
-
-        const gameDataCollection = `artifacts/${app_id}/users/`;
-
-        // Game State and Module Definitions
-        let gameState = {
-            points: 0,
-            level: '初階學徒',
-            currentModuleIndex: 0,
-            modules: [
-                {
-                    title: '1. 市場調查',
-                    subtitle: '我的目標客戶是誰？',
-                    subtitle: '我的競爭對手是誰？',
-                     subtitle: '市場上有什麼空白需求可以滿足？',
-                    content: '了解如何快速完成一份有效的市場調查，並將結果應用到實際的沙龍經營中。',
-                    points: 50,
-                    completed: false,
-                    videoUrl1: 'https://drive.google.com/file/d/1U8qQb6Ob_0pLR-KxtTLDnYcuh0fqqFtW/view?usp=sharing'
-                },
-                {
-                    title: '2. 目標客群分析',
-                    subtitle: '了解潛在顧客的一個重要步驟',
-                    content: '目標客群分析是針對你的美髮創業展店來識別。',
-                    points: 75,
-                    completed: false,
-                    videoUrl: 'https://drive.google.com/file/d/1K4_D47lq7gVnBl-OFApHuedFwgC3KAjV/view?usp=sharing'
-                },
-                {
-                    title: '3. 競爭者研究',
-                    subtitle: '制定有效策略的重要步驟',
-                    content: '競爭者研究是瞭解你的美髮創業展店在市場環境中的位置。',
-                    isAction: true,
-                    points: 100,
-                    completed: false,
-                    videoUrl: 'https://drive.google.com/file/d/1O5YKOSNwJkiSZS_4sjJvEI0dwKD-CxnR/view?usp=sharing'
-                },
-                {
-                    title: '4. 行業趨勢與需求評估',
-                    subtitle: '需求評估',
-                    content: '行業趨勢與需求評估對於美髮創業展店的成功至關重要。',
-                    points: 150,
-                    completed: false,
-                    videoUrl: 'https://drive.google.com/file/d/1cC2envJ3VySRqNahyUsLbST1U5Nw-T2I/view?usp=sharing'
-                },
-                {
-                    title: '實作：模擬預約系統',
-                    subtitle: '體驗後台管理，優化預約流程',
-                    content: '模擬操作沙龍預約系統，並練習處理常見的預約問題。',
-                    isAction: true,
-                    points: 125,
-                    completed: false,
-                    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4'
-                },
-                {
-                    title: '4. 評估與優化',
-                    subtitle: '數據導向，持續精進經營策略',
-                    content: '學習如何收集與分析數據，評估會員方案成效，並進行優化。',
-                    points: 200,
-                    completed: false,
-                    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4'
-                },
-                {
-                    title: '期末專案：創業計劃書',
-                    subtitle: '提交您的最終成果，展現學習成就',
-                    content: '撰寫一份完整的案例分析報告，展現您對沙龍經營策略的理解與應用能力。',
-                    isAction: true,
-                    points: 300,
-                    completed: false,
-                    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4'
-                }
-            ]
-        };
-
-        const playerLevelMap = [
-            { threshold: 0, name: '初階學徒' },
-            { threshold: 300, name: '中階經營者' },
-            { threshold: 600, name: '高階策略師' },
-            { threshold: 1000, name: '課程畢業生' }
-        ];
-
-        // UI Elements
-        const modulesContainer = document.getElementById('modules-container');
-        const playerPointsEl = document.getElementById('player-points');
-        const playerLevelEl = document.getElementById('player-level');
-        const progressBarEl = document.getElementById('progress-bar');
-        const messageContainer = document.getElementById('message-container');
-        const messageTextEl = document.getElementById('message-text');
-        const loadingSpinner = document.getElementById('loading-spinner');
-        const statusDisplay = document.getElementById('status-display');
-        const userIdDisplay = document.getElementById('user-id-display');
-
-        // Video Modal Elements
-        const videoModal = document.getElementById('video-modal');
-        const videoModalTitle = document.getElementById('video-modal-title');
-        const videoPlayer = document.getElementById('video-player');
-        const completeTaskBtn = document.getElementById('complete-task-btn');
-        const closeModalBtn = document.getElementById('close-modal-btn');
-        const videoCompleteMessage = document.getElementById('video-complete-message');
-        let currentModuleIndex = -1;
-
-        // --- Firebase Integration Functions ---
-        async function loadGameState() {
-            if (!userId) {
-                console.error("User ID is not set. Cannot load game state.");
-                return;
-            }
-            statusDisplay.textContent = '正在載入進度...';
-            try {
-                const docRef = doc(db, gameDataCollection + userId, userId);
-                const docSnap = await getDoc(docRef);
-
-                if (docSnap.exists()) {
-                    const savedState = docSnap.data();
-                    gameState.points = savedState.points;
-                    gameState.currentModuleIndex = savedState.currentModuleIndex;
-                    
-                    if (savedState.modules) {
-                        gameState.modules = savedState.modules;
-                    }
-                    console.log("Game state loaded from Firestore.");
-                    statusDisplay.textContent = '進度載入完成！';
-                } else {
-                    console.log("No saved game state found. Starting new game.");
-                    statusDisplay.textContent = '新遊戲已啟動。';
-                }
-            } catch (e) {
-                console.error("Error loading game state:", e);
-                statusDisplay.textContent = '載入進度失敗，請重新整理。';
-            } finally {
-                loadingSpinner.style.display = 'none';
-                updateUI();
-            }
-        }
-
-        async function saveGameState() {
-            if (!userId) {
-                console.error("User ID is not set. Cannot save game state.");
-                return;
-            }
-            try {
-                const docRef = doc(db, gameDataCollection + userId, userId);
-                await setDoc(docRef, {
-                    points: gameState.points,
-                    currentModuleIndex: gameState.currentModuleIndex,
-                    modules: gameState.modules,
-                });
-                console.log("Game state saved to Firestore.");
-            } catch (e) {
-                console.error("Error saving game state:", e);
-            }
-        }
-
-        // --- UI and Game Logic Functions ---
-
-        // Update UI state
-        function updateUI() {
-            playerPointsEl.textContent = gameState.points;
-            const currentLevel = playerLevelMap.find(level => gameState.points >= level.threshold) || playerLevelMap[0];
-            playerLevelEl.textContent = currentLevel.name;
-
-            const totalModules = gameState.modules.length;
-            const completedModules = gameState.modules.filter(m => m.completed).length;
-            const progressPercentage = (completedModules / totalModules) * 100;
-            progressBarEl.style.width = `${progressPercentage}%`;
-
-            renderModules();
-        }
-
-        // Render module cards
-        function renderModules() {
-            modulesContainer.innerHTML = '';
-            loadingSpinner.style.display = 'none';
-            gameState.modules.forEach((module, index) => {
-                const isLocked = index > gameState.currentModuleIndex;
-                const isCompleted = module.completed;
-                
-                let cardClass = 'module-card';
-                let buttonClass = 'module-button';
-                let buttonText = '';
-
-                if (isLocked) {
-                    cardClass += ' locked';
-                    buttonClass += ' bg-gray-400';
-                    buttonText = '鎖定中';
-                } else if (isCompleted) {
-                    cardClass += ' completed';
-                    buttonClass += ' bg-green-500';
-                    buttonText = '已完成';
-                } else {
-                    cardClass += ' uncompleted';
-                    buttonClass += ' bg-purple-600 hover:bg-purple-700';
-                    buttonText = module.isAction ? '開始實作' : '開始學習';
-                }
-
-                const cardHtml = `
-                    <div class="${cardClass}" data-index="${index}">
-                        <div class="module-header">
-                            <h2 class="module-title">${module.title}</h2>
-                            <div class="lock-icon text-xl text-gray-400">🔒</div>
-                            <div class="completion-icon text-xl text-green-500 ${isCompleted ? '' : 'hidden'}">✅</div>
-                        </div>
-                        <p class="module-subtitle">${module.subtitle}</p>
-                        <p class="module-content">${module.content}</p>
-                        <div class="module-footer">
-                            <span class="module-points">${module.isAction ? '實作' : '學習'}點數: +${module.points}</span>
-                            <button class="${buttonClass}" ${isLocked || isCompleted ? 'disabled' : ''}>
-                                ${buttonText}
-                            </button>
-                        </div>
-                    </div>
-                `;
-                modulesContainer.innerHTML += cardHtml;
-            });
-
-            document.querySelectorAll('.module-card button').forEach(button => {
-                button.addEventListener('click', handleModuleClick);
-            });
-        }
-
-        // Handle module click to open video modal
-        function handleModuleClick(event) {
-            const card = event.currentTarget.closest('.module-card');
-            const index = parseInt(card.dataset.index);
-            const module = gameState.modules[index];
-
-            if (index > gameState.currentModuleIndex || module.completed) {
-                return;
-            }
-            
-            currentModuleIndex = index;
-            openVideoModal(module.videoUrl, module.title);
-        }
-
-        // Open the video modal with the correct video
-        function openVideoModal(videoUrl, title) {
-            videoModalTitle.textContent = title;
-            videoPlayer.src = videoUrl;
-            videoModal.classList.remove('hidden');
-            videoModal.classList.add('visible');
-            
-            // 影片模態視窗開啟時，隱藏「完成任務」按鈕和提示文字
-            completeTaskBtn.classList.add('hidden');
-            videoCompleteMessage.classList.add('hidden');
-        }
-
-        // Close the video modal
-        function closeVideoModal() {
-            videoPlayer.pause();
-            videoPlayer.src = '';
-            videoModal.classList.remove('visible');
-            videoModal.classList.add('hidden');
-        }
-
-        // Handle task completion from within the video modal
-        async function completeTask() {
-            const module = gameState.modules[currentModuleIndex];
-            if (!module) return;
-
-            gameState.points += module.points;
-            module.completed = true;
-
-            if (gameState.currentModuleIndex < gameState.modules.length - 1) {
-                gameState.currentModuleIndex++;
-            }
-
-            await saveGameState();
-            showMessage(`恭喜完成《${module.title}》！獲得 ${module.points} 點數。`);
-            updateUI();
-            closeVideoModal();
-        }
-        
-        // --- 新增：監聽影片播放結束事件 ---
-        videoPlayer.addEventListener('ended', () => {
-            // 當影片播放結束時，顯示「完成任務」按鈕和提示文字
-            completeTaskBtn.classList.remove('hidden');
-            videoCompleteMessage.classList.remove('hidden');
-        });
-
-        // Event listeners for video modal buttons
-        completeTaskBtn.addEventListener('click', completeTask);
-        closeModalBtn.addEventListener('click', closeVideoModal);
-
-        function showMessage(text) {
-            messageContainer.classList.add('visible');
-            messageTextEl.textContent = text;
-            
-            setTimeout(() => {
-                messageContainer.classList.remove('visible');
-            }, 3000);
-        }
-
-        // --- Main execution flow ---
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                userId = user.uid;
-                userIdDisplay.textContent = `使用者ID: ${userId}`;
-                statusDisplay.textContent = '已連接。';
-                await loadGameState();
-            } else {
-                try {
-                    await signInAnonymously(auth);
-                } catch (error) {
-                    console.error("Authentication error: ", error);
-                    userIdDisplay.textContent = '使用者ID: 認證失敗';
-                    statusDisplay.textContent = '認證失敗，請重新載入。';
-                    loadingSpinner.style.display = 'none';
-                    renderModules();
-                }
-            }
-        });
-
-    </script>
-</body>
-</html>
+                <p id="video-complete-message" class="hidden text-center text-sm text-green-600 font-bold self-center">影片已播放完畢，您可以領取點數了！</p>
+                <button id="complete-task-btn" class="module-button w-full sm:w-auto bg-green-6
