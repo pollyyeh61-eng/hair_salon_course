@@ -372,10 +372,10 @@
     </div>
 
     <script type="module">
-        // Import Firebase modules. These are hosted on Google's CDN for easy access.
-        import { initializeApp } from "firebase/app";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/analytics";
-        import { getFirestore, doc, getDoc, setDoc, setLogLevel } from "firebase/analytics";
+        // Import Firebase modules from the official CDN (v10 modular SDK)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // Your Firebase project configuration.
         // 您必須將這裡的設定替換為您自己 Firebase 專案的資訊
@@ -398,7 +398,6 @@
             const app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
-            setLogLevel('Debug');
         } catch (error) {
             console.error("Firebase initialization failed:", error);
             document.getElementById('status-display').textContent = '初始化失敗，請檢查設定。';
@@ -553,7 +552,7 @@
                     videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4'
                 },
                 {
-                    title: 1'7.高端客戶服務',
+                    title: '17.高端客戶服務',
                     subtitle: '為高端客戶提供專屬的服務體驗',
                     content: '高端客戶不僅帶來穩定的收入，更能提升品牌形象。',
                     isAction: true,
@@ -617,7 +616,7 @@
             }
             statusDisplay.textContent = '正在載入進度...';
             try {
-                const docRef = doc(db, gameDataCollection + userId, userId);
+                const docRef = doc(db, 'artifacts', app_id, 'users', userId);
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
@@ -649,7 +648,7 @@
                 return;
             }
             try {
-                const docRef = doc(db, gameDataCollection + userId, userId);
+                const docRef = doc(db, 'artifacts', app_id, 'users', userId);
                 await setDoc(docRef, {
                     points: gameState.points,
                     currentModuleIndex: gameState.currentModuleIndex,
