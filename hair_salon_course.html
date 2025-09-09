@@ -374,8 +374,8 @@
     <script type="module">
         // Import Firebase modules. These are hosted on Google's CDN for easy access.
         import { initializeApp } from "firebase/app";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/analytics";
-        import { getFirestore, doc, getDoc, setDoc, setLogLevel } from "firebase/analytics";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
+        import { getFirestore, doc, getDoc, setDoc, setLogLevel } from "firebase/firestore";
 
         // Your Firebase project configuration.
         // 您必須將這裡的設定替換為您自己 Firebase 專案的資訊
@@ -398,7 +398,7 @@
             const app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
-            setLogLevel('Debug');
+            setLogLevel('debug');
         } catch (error) {
             console.error("Firebase initialization failed:", error);
             document.getElementById('status-display').textContent = '初始化失敗，請檢查設定。';
@@ -617,7 +617,7 @@
             }
             statusDisplay.textContent = '正在載入進度...';
             try {
-                const docRef = doc(db, gameDataCollection + userId, userId);
+                const docRef = doc(db, 'artifacts', app_id, 'users', userId);
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
@@ -649,7 +649,7 @@
                 return;
             }
             try {
-                const docRef = doc(db, gameDataCollection + userId, userId);
+                const docRef = doc(db, 'artifacts', app_id, 'users', userId);
                 await setDoc(docRef, {
                     points: gameState.points,
                     currentModuleIndex: gameState.currentModuleIndex,
@@ -666,7 +666,9 @@
         // Update UI state
         function updateUI() {
             playerPointsEl.textContent = gameState.points;
-            const currentLevel = playerLevelMap.find(level => gameState.points >= level.threshold) || playerLevelMap[0];
+            const currentLevel = playerLevelMap.reduce((acc, level) => (
+                gameState.points >= level.threshold ? level : acc
+            ), playerLevelMap[0]);
             playerLevelEl.textContent = currentLevel.name;
 
             const totalModules = gameState.modules.length;
