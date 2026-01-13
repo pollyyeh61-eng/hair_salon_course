@@ -7,7 +7,7 @@
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, OAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, OAuthProvider, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
@@ -23,7 +23,14 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
-        window.auth = auth; window.db = db; window.GoogleAuthProvider = GoogleAuthProvider; window.OAuthProvider = OAuthProvider;
+
+        // 設定持久性登入：即使關閉瀏覽器也會記住帳密
+        setPersistence(auth, browserLocalPersistence);
+
+        window.auth = auth; 
+        window.db = db; 
+        window.GoogleAuthProvider = GoogleAuthProvider; 
+        window.OAuthProvider = OAuthProvider;
     </script>
 
     <style>
@@ -44,7 +51,6 @@
 
         @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
-        /* 頂部導航欄 */
         nav {
             position: fixed; top: 0; width: 100%; height: 60px;
             background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px);
@@ -54,16 +60,12 @@
         }
 
         .nav-user-info { display: flex; align-items: center; gap: 10px; }
-        .avatar { width: 35px; height: 35px; border-radius: 50%; background: var(--soft-purple); }
-
-        /* 容器與卡片 */
         .container { max-width: 800px; margin: 20px auto; background: var(--glass-bg); border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         .module-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 15px; border-left: 8px solid #ddd; cursor: pointer; position: relative; }
         .module-card.unlocked { border-left-color: var(--soft-purple); }
         .module-card.completed { border-left-color: #28a745; background: #f8fff8; }
         .module-card.locked { opacity: 0.5; cursor: not-allowed; }
 
-        /* 彈窗樣式 */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; }
 
@@ -131,44 +133,20 @@
 </div>
 
 <script type="module">
-    // --- 遊戲資料定義 ---
+    import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { ref, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
     let userData = {
         points: 0,
         profile: { name: '', contact: '', bio: '' },
         progress: Array(15).fill().map((_, i) => ({ id: i, done: false, comment: '', unlocked: i === 0 }))
     };
 
-    const moduleTitles = [
-        "0.創業的目的","1.喜愛的市場調查","2.目前的目標市場","3.你的競爭者是誰",
-        "4.你的行業趨勢","5.你的技術定位","6.你想如何選址與佈置","7.你的服務配套",
-        "8.你的供應鏈要找誰","9.你的人力組織配置","10.你的客戶分級想法",
-        "11.有哪些法律規章","12.你的財務管理配置","13.初期投資高低門檻","14.你的獲客變現"
-    ];
-
-    const videoUrls = [
-        "https://drive.google.com/file/d/1gbZn2DTvHiE2B_G06nERXb-Q7AuQvFIh/preview",
-        "https://drive.google.com/file/d/1U8qQb6Ob_0pLR-KxtTLDnYcuh0fqqFtW/preview",
-        "https://drive.google.com/file/d/1K4_D47lq7gVnBl-OFApHuedFwgC3KAjV/preview",
-        "https://drive.google.com/file/d/1O5YKOSNwJkiSZS_4sjJvEI0dwKD-CxnR/preview",
-        "https://drive.google.com/file/d/1cC2envJ3VySRqNahyUsLbST1U5Nw-T2I/preview",
-        "https://drive.google.com/file/d/1mx6dCQx22q7MVAMaiH3B5570xDGb8etg/preview",
-        "https://drive.google.com/file/d/1kvB1EkXtp1xxtduubgPEPKtc_uJu7eK4/preview",
-        "https://drive.google.com/file/d/11M2Wpx8cTDlYxyzImPhtniOZUhLXtdiH/preview",
-        "https://drive.google.com/file/d/1Aj3GeAjIP561kZbvQ34erVizzbJ5GcZq/preview",
-        "https://drive.google.com/file/d/16yrBQAjmQYj5fwOPvvZ5m8LRE287YWQ2/preview",
-        "https://drive.google.com/file/d/1kXaekwIciXsdwGy4pKnCyuMkohfOzvo_/preview",
-        "https://drive.google.com/file/d/1LmhYPbc-jUBJhtUWv11kIBoXy60yizrJ/preview",
-        "https://drive.google.com/file/d/18GQ8LguusbO7nKHRNl9dwdzFmRi1H-Be/preview",
-        "https://drive.google.com/file/d/1gY-HmrC_qWmHTOJJ3vV_lnMiN32_RpEH/preview",
-        "https://drive.google.com/file/d/1XWDIlKWw_ueGTIhfW8tld2KPp1jD_TBt/preview"
-    ];
-
+    const moduleTitles = ["0.創業的目的","1.喜愛的市場調查","2.目前的目標市場","3.你的競爭者是誰","4.你的行業趨勢","5.你的技術定位","6.你想如何選址與佈置","7.你的服務配套","8.你的供應鏈要找誰","9.你的人力組織配置","10.你的客戶分級想法","11.有哪些法律規章","12.你的財務管理配置","13.初期投資高低門檻","14.你的獲客變現"];
+    const videoUrls = ["https://drive.google.com/file/d/1gbZn2DTvHiE2B_G06nERXb-Q7AuQvFIh/preview","https://drive.google.com/file/d/1U8qQb6Ob_0pLR-KxtTLDnYcuh0fqqFtW/preview","https://drive.google.com/file/d/1K4_D47lq7gVnBl-OFApHuedFwgC3KAjV/preview","https://drive.google.com/file/d/1O5YKOSNwJkiSZS_4sjJvEI0dwKD-CxnR/preview","https://drive.google.com/file/d/1cC2envJ3VySRqNahyUsLbST1U5Nw-T2I/preview","https://drive.google.com/file/d/1mx6dCQx22q7MVAMaiH3B5570xDGb8etg/preview","https://drive.google.com/file/d/1kvB1EkXtp1xxtduubgPEPKtc_uJu7eK4/preview","https://drive.google.com/file/d/11M2Wpx8cTDlYxyzImPhtniOZUhLXtdiH/preview","https://drive.google.com/file/d/1Aj3GeAjIP561kZbvQ34erVizzbJ5GcZq/preview","https://drive.google.com/file/d/16yrBQAjmQYj5fwOPvvZ5m8LRE287YWQ2/preview","https://drive.google.com/file/d/1kXaekwIciXsdwGy4pKnCyuMkohfOzvo_/preview","https://drive.google.com/file/d/1LmhYPbc-jUBJhtUWv11kIBoXy60yizrJ/preview","https://drive.google.com/file/d/18GQ8LguusbO7nKHRNl9dwdzFmRi1H-Be/preview","https://drive.google.com/file/d/1gY-HmrC_qWmHTOJJ3vV_lnMiN32_RpEH/preview","https://drive.google.com/file/d/1XWDIlKWw_ueGTIhfW8tld2KPp1jD_TBt/preview"];
     let currentIdx = -1;
 
-    // --- Firebase 邏輯 ---
-    import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { ref, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
+    // 監聽登入狀態與同步資料
     onAuthStateChanged(window.auth, async (user) => {
         if (user) {
             document.getElementById('navAuthArea').innerHTML = `<div onclick="openModal('profileModal')" style="cursor:pointer">👤 會員中心</div>`;
@@ -191,12 +169,15 @@
         const snapshot = await get(ref(window.db, 'users/' + uid));
         if (snapshot.exists()) {
             userData = snapshot.val();
+            // 更新會員中心欄位
+            document.getElementById('profName').value = userData.profile.name || '';
+            document.getElementById('profContact').value = userData.profile.contact || '';
+            document.getElementById('profBio').value = userData.profile.bio || '';
         } else {
-            await syncToCloud(); // 第一次登入，上傳本地資料
+            await syncToCloud();
         }
     }
 
-    // --- 基礎功能 ---
     window.render = () => {
         document.getElementById('totalPts').textContent = userData.points;
         document.getElementById('welcomeText').textContent = `歡迎，${userData.profile.name || '創業家'}`;
@@ -224,7 +205,6 @@
     window.submitProgress = async () => {
         const comment = document.getElementById('userComment').value.trim();
         if (comment.length < 5) return alert("心得請至少輸入5個字");
-        
         const m = userData.progress[currentIdx];
         if (!m.done) {
             m.done = true;
@@ -237,15 +217,14 @@
         showDashboard();
     };
 
-    // --- UI 控制 ---
     window.openModal = (id) => document.getElementById(id).style.display = 'flex';
     window.closeModal = (id) => document.getElementById(id).style.display = 'none';
     window.showDashboard = () => {
+        document.getElementById('videoContainer').innerHTML = '';
         document.getElementById('modulePage').style.display = 'none';
         document.getElementById('dashboard').style.display = 'block';
     };
 
-    // --- Auth 功能 ---
     window.emailLogin = async () => {
         const email = document.getElementById('emailInput').value;
         const pass = document.getElementById('passInput').value;
@@ -263,7 +242,10 @@
         closeModal('authModal');
     };
 
-    window.logout = () => window.auth.signOut();
+    window.logout = () => {
+        signOut(window.auth);
+        closeModal('profileModal');
+    };
 
     window.saveProfile = async () => {
         userData.profile.name = document.getElementById('profName').value;
@@ -277,8 +259,6 @@
 
     function saveLocal() { localStorage.setItem('hair_local', JSON.stringify(userData)); }
     function loadLocal() { const s = localStorage.getItem('hair_local'); if(s) userData = JSON.parse(s); }
-
-    init();
 </script>
 
 </body>
