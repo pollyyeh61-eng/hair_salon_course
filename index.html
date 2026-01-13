@@ -3,7 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>美髮創業闖關修煉</title>
+    <title>夢幻美髮創業 - 雲端版</title>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, OAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCOhBN9TH3UJSOSx5XVyQ08f_2RUckvXYU",
+            authDomain: "holyhairsalon-f73bf.firebaseapp.com",
+            databaseURL: "https://holyhairsalon-f73bf-default-rtdb.firebaseio.com",
+            projectId: "holyhairsalon-f73bf",
+            storageBucket: "holyhairsalon-f73bf.firebasestorage.app",
+            messagingSenderId: "960169055224",
+            appId: "1:960169055224:web:0ffd5e111281a7ecbf3c0d"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        window.auth = auth; window.db = db; window.GoogleAuthProvider = GoogleAuthProvider; window.OAuthProvider = OAuthProvider;
+    </script>
+
     <style>
         :root {
             --primary-purple: #8a2be2;
@@ -14,225 +36,247 @@
 
         body {
             font-family: 'PingFang TC', sans-serif;
-            background: linear-gradient(-45deg, #6a11cb, #2575fc, #e73c7e);
+            background: linear-gradient(-45deg, #a18cd1, #fbc2eb, #8fd3f4);
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
-            margin: 0; padding: 15px; min-height: 100vh;
+            margin: 0; padding-top: 70px; min-height: 100vh;
         }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        /* 頂部導航欄 */
+        nav {
+            position: fixed; top: 0; width: 100%; height: 60px;
+            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 20px; box-sizing: border-box; z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        .container {
-            max-width: 800px;
-            margin: auto;
-            background: var(--glass-bg);
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
+        .nav-user-info { display: flex; align-items: center; gap: 10px; }
+        .avatar { width: 35px; height: 35px; border-radius: 50%; background: var(--soft-purple); }
 
-        /* 鎖定狀態樣式 */
-        .module-card {
-            background: white;
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-left: 8px solid #ddd;
-            transition: 0.3s;
-            position: relative;
-        }
-        .module-card.unlocked { border-left-color: var(--soft-purple); cursor: pointer; }
-        .module-card.locked { opacity: 0.6; cursor: not-allowed; background: #f0f0f0; }
-        .module-card.completed { border-left-color: #28a745; }
+        /* 容器與卡片 */
+        .container { max-width: 800px; margin: 20px auto; background: var(--glass-bg); border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .module-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 15px; border-left: 8px solid #ddd; cursor: pointer; position: relative; }
+        .module-card.unlocked { border-left-color: var(--soft-purple); }
+        .module-card.completed { border-left-color: #28a745; background: #f8fff8; }
+        .module-card.locked { opacity: 0.5; cursor: not-allowed; }
 
-        .lock-icon { position: absolute; right: 20px; top: 40%; font-size: 1.2em; }
+        /* 彈窗樣式 */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; }
 
-        /* 影片與留言區 */
-        .video-wrapper {
-            position: relative; padding-bottom: 56.25%; height: 0; 
-            overflow: hidden; border-radius: 12px; background: #000;
-        }
+        input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { background: var(--primary-purple); color: white; padding: 10px 20px; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; }
+        .btn-google { background: #db4437; margin-top: 10px; }
+        .btn-apple { background: #000; margin-top: 10px; }
+
+        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; background: #000; }
         .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-
-        textarea {
-            width: 100%; height: 80px; margin: 15px 0; border-radius: 10px;
-            border: 1px solid #ddd; padding: 10px; box-sizing: border-box;
-            font-size: 1em;
-        }
-
-        button {
-            background: var(--primary-purple); color: white; padding: 12px 25px;
-            border: none; border-radius: 25px; font-weight: bold; cursor: pointer; width: 100%;
-        }
-        button:disabled { background: #ccc; cursor: not-allowed; }
-
-        /* 後台樣式 */
-        #adminPanel { margin-top: 30px; border-top: 2px solid #ddd; padding-top: 20px; display: none; }
-        .comment-item { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 5px; font-size: 0.9em; }
-
-        .points-badge { font-size: 1.5em; color: var(--primary-purple); font-weight: bold; }
     </style>
 </head>
 <body>
 
+<nav>
+    <div style="font-weight: bold; color: var(--primary-purple);">✨ HolyHair Salon</div>
+    <div class="nav-user-info" id="navAuthArea">
+        <button onclick="openModal('authModal')">註冊 / 登入</button>
+    </div>
+</nav>
+
 <div class="container">
     <div id="dashboard">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2>✨ 創業修煉之路</h2>
-            <div class="points-badge">PTS: <span id="totalPts">0</span></div>
+            <h2 id="welcomeText">歡迎，創業家</h2>
+            <div style="text-align:right;">
+                <div style="color:var(--primary-purple); font-weight:bold;">PTS: <span id="totalPts">0</span></div>
+            </div>
         </div>
-        <p style="color:#666; font-size:0.9em;">提示：必須按順序完成課程，並在留言區寫下心得才能解鎖下一關。</p>
         <div id="modulesList"></div>
-        <div style="text-align:center; margin-top:40px;">
-            <a href="javascript:void(0)" onclick="openAdmin()" style="color:#aaa; font-size:0.7em; text-decoration:none;">導師登入</a>
-        </div>
     </div>
 
     <div id="modulePage" style="display:none;">
-        <button onclick="goBack()" style="width:auto; background:#666;">← 返回清單</button>
+        <button onclick="showDashboard()" style="background:#666;">← 返回</button>
         <h3 id="mTitle"></h3>
         <div class="video-wrapper" id="videoContainer"></div>
-        
-        <div id="quizArea" style="margin-top:20px;">
-            <label id="quizLabel" style="font-weight:bold; color:var(--deep-purple);"></label>
-            <textarea id="userComment" placeholder="請輸入您的思考或心得（通關密碼）..."></textarea>
-            <button id="claimBtn" onclick="submitProgress()">送出心得並領取點數</button>
-        </div>
-    </div>
-
-    <div id="adminPage" style="display:none;">
-        <button onclick="goBack()" style="width:auto; background:#666;">退出後台</button>
-        <h3>👨‍🏫 導師管理後台 (留言監控)</h3>
-        <div id="adminContent"></div>
+        <textarea id="userComment" placeholder="輸入您的心得 (通關密碼)..."></textarea>
+        <button onclick="submitProgress()" id="submitBtn">送出心得領取點數</button>
     </div>
 </div>
 
-<script>
-    let state = {
+<div id="authModal" class="modal">
+    <div class="modal-content">
+        <h3>會員登入 / 註冊</h3>
+        <input type="email" id="emailInput" placeholder="電子信箱">
+        <input type="password" id="passInput" placeholder="密碼">
+        <button onclick="emailLogin()" style="width:100%;">信箱登入/註冊</button>
+        <hr>
+        <button class="btn-google" onclick="socialLogin('google')" style="width:100%;">Google 登入</button>
+        <button class="btn-apple" onclick="socialLogin('apple')" style="width:100%;">Apple 登入</button>
+        <button onclick="closeModal('authModal')" style="background:none; color:#666; width:100%; margin-top:10px;">取消</button>
+    </div>
+</div>
+
+<div id="profileModal" class="modal">
+    <div class="modal-content">
+        <h3>👤 會員中心</h3>
+        <label>姓名</label><input type="text" id="profName">
+        <label>聯絡方式</label><input type="text" id="profContact">
+        <label>自我介紹</label><textarea id="profBio"></textarea>
+        <button onclick="saveProfile()" style="width:100%;">儲存資料</button>
+        <button onclick="logout()" style="width:100%; background:#ff4444; margin-top:10px;">登出</button>
+        <button onclick="closeModal('profileModal')" style="background:none; color:#666; width:100%; margin-top:10px;">關閉</button>
+    </div>
+</div>
+
+<script type="module">
+    // --- 遊戲資料定義 ---
+    let userData = {
         points: 0,
-        modules: [
-            { id: 0, title: '0. 創業的目的', url: 'https://drive.google.com/file/d/1gbZn2DTvHiE2B_G06nERXb-Q7AuQvFIh/preview', pts: 50, done: false, comment: '', unlocked: true, quiz: "Q: 您創業的最核心動機是什麼？" },
-            { id: 1, title: '1. 喜愛的市場調查', url: 'https://drive.google.com/file/d/1U8qQb6Ob_0pLR-KxtTLDnYcuh0fqqFtW/preview', pts: 50, done: false, comment: '', unlocked: false, quiz: "Q: 您的市場調查中，哪一點最讓您意外？" },
-            { id: 2, title: '2. 目前的目標市場', url: 'https://drive.google.com/file/d/1K4_D47lq7gVnBl-OFApHuedFwgC3KAjV/preview', pts: 50, done: false, comment: '', unlocked: false, quiz: "Q: 誰是您最想服務的精準客群？" },
-            { id: 3, title: '3. 您的競爭者是誰', url: 'https://drive.google.com/file/d/1O5YKOSNwJkiSZS_4sjJvEI0dwKD-CxnR/preview', pts: 50, done: false, comment: '', unlocked: false, quiz: "Q: 競爭者的哪個缺點是您的機會？" },
-            { id: 4, title: '4. 您的行業趨勢', url: 'https://drive.google.com/file/d/1cC2envJ3VySRqNahyUsLbST1U5Nw-T2I/preview', pts: 50, done: false, comment: '', unlocked: false, quiz: "Q: 未來三年影響美髮業最大的趨勢是？" },
-            { id: 5, title: '5. 您的技術定位', url: 'https://drive.google.com/file/d/1mx6dCQx22q7MVAMaiH3B5570xDGb8etg/preview', pts: 50, done: false, comment: '', unlocked: false, quiz: "Q: 您的哪項技術是顧客非找您不可的？" },
-            { id: 6, title: '6. 選址與佈置想法', url: 'https://drive.google.com/file/d/1kvB1EkXtp1xxtduubgPEPKtc_uJu7eK4/preview', pts: 50, done: false, comment: '', unlocked: false, quiz: "Q: 店面佈置您最重視哪個細節？" },
-            { id: 7, title: '7. 您的服務配套', url: 'https://drive.google.com/file/d/11M2Wpx8cTDlYxyzImPhtniOZUhLXtdiH/preview', pts: 50, done: false, comment: '', unlocked: false, quiz: "Q: 除了洗剪染，您還想增加什麼配套？" },
-            { id: 8, title: '8. 供應鏈要找誰', url: 'https://drive.google.com/file/d/1Aj3GeAjIP561kZbvQ34erVizzbJ5GcZq/preview', pts: 100, done: false, comment: '', unlocked: false, quiz: "Q: 挑選供應商時，您排在第一位的條件是？" },
-            { id: 9, title: '9. 人力組織配置', url: 'https://drive.google.com/file/d/16yrBQAjmQYj5fwOPvvZ5m8LRE287YWQ2/preview', pts: 50, done: false, comment: '', unlocked: false, quiz: "Q: 您理想中的團隊規模是幾人？" },
-            { id: 10, title: '10. 客戶分級想法', url: 'https://drive.google.com/file/d/1kXaekwIciXsdwGy4pKnCyuMkohfOzvo_/preview', pts: 50, done: false, comment: '', unlocked: false, quiz: "Q: 您打算如何回饋您的高階會員？" },
-            { id: 11, title: '11. 相關法律規章', url: 'https://drive.google.com/file/d/1LmhYPbc-jUBJhtUWv11kIBoXy60yizrJ/preview', pts: 50, done: false, comment: '', unlocked: false, quiz: "Q: 對您而言最陌生的法規是哪一條？" },
-            { id: 12, title: '12. 財務管理配置', url: 'https://drive.google.com/file/d/18GQ8LguusbO7nKHRNl9dwdzFmRi1H-Be/preview', pts: 100, done: false, comment: '', unlocked: false, quiz: "Q: 您每個月會提撥多少比例作為緊急預備金？" },
-            { id: 13, title: '13. 初期投資門檻', url: 'https://drive.google.com/file/d/1gY-HmrC_qWmHTOJJ3vV_lnMiN32_RpEH/preview', pts: 100, done: false, comment: '', unlocked: false, quiz: "Q: 為何您選擇高/低門檻作為切入點？" },
-            { id: 14, title: '14. 獲客如何變現', url: 'https://drive.google.com/file/d/1XWDIlKWw_ueGTIhfW8tld2KPp1jD_TBt/preview', pts: 100, done: false, comment: '', unlocked: false, quiz: "Q: 您第一個月打算開發多少位新客人？" }
-        ],
-        curIdx: -1
+        profile: { name: '', contact: '', bio: '' },
+        progress: Array(15).fill().map((_, i) => ({ id: i, done: false, comment: '', unlocked: i === 0 }))
     };
 
-    function init() {
-        const saved = localStorage.getItem('biz_master_state');
-        if (saved) state = JSON.parse(saved);
+    const moduleTitles = [
+        "0.創業的目的","1.喜愛的市場調查","2.目前的目標市場","3.你的競爭者是誰",
+        "4.你的行業趨勢","5.你的技術定位","6.你想如何選址與佈置","7.你的服務配套",
+        "8.你的供應鏈要找誰","9.你的人力組織配置","10.你的客戶分級想法",
+        "11.有哪些法律規章","12.你的財務管理配置","13.初期投資高低門檻","14.你的獲客變現"
+    ];
+
+    const videoUrls = [
+        "https://drive.google.com/file/d/1gbZn2DTvHiE2B_G06nERXb-Q7AuQvFIh/preview",
+        "https://drive.google.com/file/d/1U8qQb6Ob_0pLR-KxtTLDnYcuh0fqqFtW/preview",
+        "https://drive.google.com/file/d/1K4_D47lq7gVnBl-OFApHuedFwgC3KAjV/preview",
+        "https://drive.google.com/file/d/1O5YKOSNwJkiSZS_4sjJvEI0dwKD-CxnR/preview",
+        "https://drive.google.com/file/d/1cC2envJ3VySRqNahyUsLbST1U5Nw-T2I/preview",
+        "https://drive.google.com/file/d/1mx6dCQx22q7MVAMaiH3B5570xDGb8etg/preview",
+        "https://drive.google.com/file/d/1kvB1EkXtp1xxtduubgPEPKtc_uJu7eK4/preview",
+        "https://drive.google.com/file/d/11M2Wpx8cTDlYxyzImPhtniOZUhLXtdiH/preview",
+        "https://drive.google.com/file/d/1Aj3GeAjIP561kZbvQ34erVizzbJ5GcZq/preview",
+        "https://drive.google.com/file/d/16yrBQAjmQYj5fwOPvvZ5m8LRE287YWQ2/preview",
+        "https://drive.google.com/file/d/1kXaekwIciXsdwGy4pKnCyuMkohfOzvo_/preview",
+        "https://drive.google.com/file/d/1LmhYPbc-jUBJhtUWv11kIBoXy60yizrJ/preview",
+        "https://drive.google.com/file/d/18GQ8LguusbO7nKHRNl9dwdzFmRi1H-Be/preview",
+        "https://drive.google.com/file/d/1gY-HmrC_qWmHTOJJ3vV_lnMiN32_RpEH/preview",
+        "https://drive.google.com/file/d/1XWDIlKWw_ueGTIhfW8tld2KPp1jD_TBt/preview"
+    ];
+
+    let currentIdx = -1;
+
+    // --- Firebase 邏輯 ---
+    import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { ref, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    onAuthStateChanged(window.auth, async (user) => {
+        if (user) {
+            document.getElementById('navAuthArea').innerHTML = `<div onclick="openModal('profileModal')" style="cursor:pointer">👤 會員中心</div>`;
+            await syncFromCloud(user.uid);
+        } else {
+            document.getElementById('navAuthArea').innerHTML = `<button onclick="openModal('authModal')">註冊 / 登入</button>`;
+            loadLocal();
+        }
         render();
+    });
+
+    async function syncToCloud() {
+        if (window.auth.currentUser) {
+            await set(ref(window.db, 'users/' + window.auth.currentUser.uid), userData);
+        }
+        saveLocal();
     }
 
-    function render() {
-        document.getElementById('totalPts').textContent = state.points;
+    async function syncFromCloud(uid) {
+        const snapshot = await get(ref(window.db, 'users/' + uid));
+        if (snapshot.exists()) {
+            userData = snapshot.val();
+        } else {
+            await syncToCloud(); // 第一次登入，上傳本地資料
+        }
+    }
+
+    // --- 基礎功能 ---
+    window.render = () => {
+        document.getElementById('totalPts').textContent = userData.points;
+        document.getElementById('welcomeText').textContent = `歡迎，${userData.profile.name || '創業家'}`;
         const list = document.getElementById('modulesList');
         list.innerHTML = '';
-
-        state.modules.forEach((m, i) => {
+        moduleTitles.forEach((t, i) => {
+            const m = userData.progress[i];
             const card = document.createElement('div');
-            const isUnlocked = m.unlocked;
-            const isDone = m.done;
-
-            card.className = `module-card ${isUnlocked ? 'unlocked' : 'locked'} ${isDone ? 'completed' : ''}`;
-            card.innerHTML = `
-                <strong>${m.title}</strong>
-                <div style="font-size:0.8em; color:#888;">獎勵: ${m.pts} PTS</div>
-                ${!isUnlocked ? '<span class="lock-icon">🔒</span>' : (isDone ? '<span class="lock-icon">✅</span>' : '<span class="lock-icon">▶️</span>')}
-            `;
-            if (isUnlocked) card.onclick = () => openMod(i);
+            card.className = `module-card ${m.unlocked ? 'unlocked' : 'locked'} ${m.done ? 'completed' : ''}`;
+            card.innerHTML = `<strong>${t}</strong> ${!m.unlocked ? '🔒' : (m.done ? '✅' : '▶️')}`;
+            if (m.unlocked) card.onclick = () => openMod(i);
             list.appendChild(card);
         });
-        localStorage.setItem('biz_master_state', JSON.stringify(state));
-    }
+    };
 
-    function openMod(i) {
-        state.curIdx = i;
-        const m = state.modules[i];
-        document.getElementById('mTitle').textContent = m.title;
-        document.getElementById('quizLabel').textContent = m.quiz;
-        document.getElementById('videoContainer').innerHTML = `<iframe src="${m.url}"></iframe>`;
-        document.getElementById('userComment').value = m.comment;
-        
-        // 切換頁面
+    window.openMod = (i) => {
+        currentIdx = i;
+        document.getElementById('mTitle').textContent = moduleTitles[i];
+        document.getElementById('videoContainer').innerHTML = `<iframe src="${videoUrls[i]}"></iframe>`;
+        document.getElementById('userComment').value = userData.progress[i].comment;
         document.getElementById('dashboard').style.display = 'none';
-        document.getElementById('adminPage').style.display = 'none';
         document.getElementById('modulePage').style.display = 'block';
-    }
+    };
 
-    function submitProgress() {
+    window.submitProgress = async () => {
         const comment = document.getElementById('userComment').value.trim();
-        if (comment.length < 5) {
-            alert('心得留言請至少輸入 5 個字唷！');
-            return;
-        }
-
-        const m = state.modules[state.curIdx];
-        m.comment = comment;
-
+        if (comment.length < 5) return alert("心得請至少輸入5個字");
+        
+        const m = userData.progress[currentIdx];
         if (!m.done) {
             m.done = true;
-            state.points += m.pts;
-            // 解鎖下一關
-            if (state.curIdx + 1 < state.modules.length) {
-                state.modules[state.curIdx + 1].unlocked = true;
-            }
-            alert('🎉 心得已紀錄，成功解鎖下一關！');
-        } else {
-            alert('心得已更新！');
+            userData.points += (currentIdx === 8 || currentIdx >= 12) ? 100 : 50;
+            if (currentIdx + 1 < 15) userData.progress[currentIdx + 1].unlocked = true;
         }
-        
+        m.comment = comment;
+        await syncToCloud();
         render();
-        goBack();
-    }
+        showDashboard();
+    };
 
-    function goBack() {
-        document.getElementById('videoContainer').innerHTML = '';
-        document.getElementById('dashboard').style.display = 'block';
+    // --- UI 控制 ---
+    window.openModal = (id) => document.getElementById(id).style.display = 'flex';
+    window.closeModal = (id) => document.getElementById(id).style.display = 'none';
+    window.showDashboard = () => {
         document.getElementById('modulePage').style.display = 'none';
-        document.getElementById('adminPage').style.display = 'none';
-    }
+        document.getElementById('dashboard').style.display = 'block';
+    };
 
-    // --- 導師後台邏輯 ---
-    function openAdmin() {
-        const pw = prompt("請輸入導師後台密碼:");
-        if (pw === "0000") {
-            const adminContent = document.getElementById('adminContent');
-            adminContent.innerHTML = '';
-            
-            state.modules.forEach(m => {
-                if (m.comment) {
-                    const div = document.createElement('div');
-                    div.className = 'comment-item';
-                    div.innerHTML = `<strong>[${m.title}]</strong>: ${m.comment}`;
-                    adminContent.appendChild(div);
-                }
-            });
-
-            if (adminContent.innerHTML === '') adminContent.innerHTML = '<p>目前尚無學員留言。</p>';
-
-            document.getElementById('dashboard').style.display = 'none';
-            document.getElementById('adminPage').style.display = 'block';
-        } else {
-            alert("密碼錯誤！");
+    // --- Auth 功能 ---
+    window.emailLogin = async () => {
+        const email = document.getElementById('emailInput').value;
+        const pass = document.getElementById('passInput').value;
+        try {
+            await signInWithEmailAndPassword(window.auth, email, pass);
+        } catch {
+            await createUserWithEmailAndPassword(window.auth, email, pass);
         }
-    }
+        closeModal('authModal');
+    };
+
+    window.socialLogin = async (type) => {
+        const provider = type === 'google' ? new window.GoogleAuthProvider() : new window.OAuthProvider('apple.com');
+        await signInWithPopup(window.auth, provider);
+        closeModal('authModal');
+    };
+
+    window.logout = () => window.auth.signOut();
+
+    window.saveProfile = async () => {
+        userData.profile.name = document.getElementById('profName').value;
+        userData.profile.contact = document.getElementById('profContact').value;
+        userData.profile.bio = document.getElementById('profBio').value;
+        await syncToCloud();
+        alert("資料已更新");
+        closeModal('profileModal');
+        render();
+    };
+
+    function saveLocal() { localStorage.setItem('hair_local', JSON.stringify(userData)); }
+    function loadLocal() { const s = localStorage.getItem('hair_local'); if(s) userData = JSON.parse(s); }
 
     init();
 </script>
