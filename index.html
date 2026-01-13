@@ -59,21 +59,35 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        .nav-user-info { display: flex; align-items: center; gap: 10px; }
         .container { max-width: 800px; margin: 20px auto; background: var(--glass-bg); border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        .module-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 15px; border-left: 8px solid #ddd; cursor: pointer; position: relative; }
+        
+        /* 模組卡片與進度條 */
+        .module-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 15px; border-left: 8px solid #ddd; cursor: pointer; position: relative; transition: 0.3s; }
         .module-card.unlocked { border-left-color: var(--soft-purple); }
         .module-card.completed { border-left-color: #28a745; background: #f8fff8; }
         .module-card.locked { opacity: 0.5; cursor: not-allowed; }
+        .progress-container { width: 100%; background: #eee; border-radius: 10px; height: 6px; margin-top: 10px; overflow: hidden; }
+        .progress-bar { height: 100%; background: var(--soft-purple); transition: width 0.5s; }
+        .completed .progress-bar { background: #28a745; }
 
+        /* 彈窗樣式 */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; }
+        .modal-content { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; max-height: 85vh; overflow-y: auto; }
 
-        input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        button { background: var(--primary-purple); color: white; padding: 10px 20px; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; }
-        .btn-google { background: #db4437; margin-top: 10px; }
-        .btn-apple { background: #000; margin-top: 10px; }
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        button { background: var(--primary-purple); color: white; padding: 12px 20px; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        button:hover { opacity: 0.8; transform: translateY(-1px); }
 
+        /* 會員中心按鈕區分 */
+        .btn-save { width: 100%; background: var(--primary-purple); box-shadow: 0 4px 10px rgba(138, 43, 226, 0.2); }
+        .btn-logout { width: 100%; background: transparent !important; color: #ff4444 !important; border: 1px solid #ff4444 !important; margin-top: 15px; }
+        .btn-logout:hover { background: #ff4444 !important; color: white !important; }
+        .btn-cancel { background: none !important; color: #888 !important; width: 100%; font-size: 14px; margin-top: 10px; text-decoration: underline; }
+
+        /* 導師後台抽屜 */
+        .admin-drawer { background: #fff; border: 1px solid #eee; border-radius: 12px; margin-bottom: 10px; }
+        .drawer-header { padding: 15px; background: #fdfdfd; cursor: pointer; display: flex; justify-content: space-between; font-weight: bold; border-radius: 12px; }
+        .drawer-content { padding: 15px; display: none; border-top: 1px solid #f0f0f0; font-size: 14px; line-height: 1.6; }
         .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; background: #000; }
         .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
     </style>
@@ -89,49 +103,55 @@
 
 <div class="container">
     <div id="dashboard">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2 id="welcomeText">歡迎，創業家</h2>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+            <h2 id="welcomeText" style="margin:0;">歡迎，創業家</h2>
             <div style="text-align:right;">
-                <div style="color:var(--primary-purple); font-weight:bold;">PTS: <span id="totalPts">0</span></div>
+                <div style="color:var(--primary-purple); font-weight:bold;">積分: <span id="totalPts">0</span></div>
             </div>
         </div>
         <div id="modulesList"></div>
     </div>
 
     <div id="modulePage" style="display:none;">
-        <button onclick="showDashboard()" style="background:#666;">← 返回</button>
+        <button onclick="showDashboard()" style="background:#666; margin-bottom: 15px;">← 返回課程列表</button>
         <h3 id="mTitle"></h3>
         <div class="video-wrapper" id="videoContainer"></div>
-        <textarea id="userComment" placeholder="輸入您的心得 (通關密碼)..."></textarea>
-        <button onclick="submitProgress()" id="submitBtn">送出心得領取點數</button>
+        <p style="color: #666; font-size: 14px; margin-top: 15px;">💡 通關任務：請輸入至少 50 字的學習心得 (通關密碼)。</p>
+        <textarea id="userComment" rows="5" placeholder="輸入您的心得..."></textarea>
+        <button onclick="submitProgress()" id="submitBtn" style="width:100%;">送出心得並領取積分</button>
     </div>
 </div>
 
 <div id="authModal" class="modal">
     <div class="modal-content">
         <h3>會員登入 / 註冊</h3>
-        <p style="font-size: 14px; color: #666;">新用戶請輸入 Email 與密碼進行註冊，註冊後請填寫基本資料即可開始課程。</p>
         <input type="email" id="emailInput" placeholder="電子信箱">
         <input type="password" id="passInput" placeholder="密碼">
         <button onclick="emailLogin()" style="width:100%;">信箱登入/註冊</button>
         <hr>
-        <button class="btn-google" onclick="socialLogin('google')" style="width:100%;">Google 快速註冊</button>
-        <button onclick="closeModal('authModal')" id="authCloseBtn" style="background:none; color:#666; width:100%; margin-top:10px;">取消</button>
+        <button style="width:100%; background:#db4437;" onclick="socialLogin('google')">Google 快速登入</button>
+        <button onclick="closeModal('authModal')" class="btn-cancel">取消</button>
     </div>
 </div>
 
 <div id="profileModal" class="modal">
     <div class="modal-content">
-        <h3>📝 完善會員資料</h3>
-        <p style="font-size: 14px; color: var(--primary-purple);">請填寫以下資訊以正式啟用帳號</p>
-        <label>真實姓名 *</label><input type="text" id="profName" placeholder="例如：王小明">
-        <label>聯絡電話/Line *</label><input type="text" id="profContact" placeholder="方便導師聯繫您">
-        <label>目前的創業想法</label><textarea id="profBio" placeholder="簡述您的夢想..."></textarea>
-        <button onclick="saveProfile()" style="width:100%;">儲存資料並開始課程</button>
-        <button onclick="logout()" style="width:100%; background:#ff4444; margin-top:10px;">取消註冊(登出)</button>
-        <button onclick="closeModal('profileModal')" id="profCloseBtn" style="background:none; color:#666; width:100%; margin-top:10px;">暫時關閉</button>
+        <h3 style="text-align:center;">👤 會員中心</h3>
+        <label>真實姓名 *</label><input type="text" id="profName" placeholder="請填寫姓名">
+        <label>聯絡電話/Line *</label><input type="text" id="profContact" placeholder="您的聯絡資訊">
+        <label>創業夢想</label><textarea id="profBio" placeholder="想對導師說的話..."></textarea>
+        <button onclick="saveProfile()" class="btn-save" id="saveBtn">✅ 儲存資料</button>
+        <button onclick="logout()" class="btn-logout">登出帳號</button>
+        <button onclick="closeModal('profileModal')" id="profCloseBtn" class="btn-cancel">暫時關閉</button>
     </div>
 </div>
+
+<div class="container" id="adminSection" style="display:none; margin-top: 40px; border-top: 2px solid #eee;">
+    <h2 style="color: var(--deep-purple);">📂 導師後台管理</h2>
+    <div id="adminUserList"></div>
+</div>
+
+<center><button onclick="toggleAdmin()" style="background:#333; font-size:10px; margin: 30px 0; opacity: 0.4;">切換導師後台</button></center>
 
 <script type="module">
     import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -151,10 +171,8 @@
         if (user) {
             document.getElementById('navAuthArea').innerHTML = `<div onclick="openModal('profileModal')" style="cursor:pointer">👤 會員中心</div>`;
             await syncFromCloud(user.uid);
-            
-            // 檢查：如果已經登入但沒名字，代表是剛註冊，強制填寫資料
             if (!userData.profile.name) {
-                document.getElementById('profCloseBtn').style.display = 'none'; // 隱藏關閉按鈕，強制填寫
+                document.getElementById('profCloseBtn').style.display = 'none';
                 openModal('profileModal');
             } else {
                 document.getElementById('profCloseBtn').style.display = 'block';
@@ -184,15 +202,22 @@
     }
 
     window.render = () => {
+        const doneCount = userData.progress.filter(p => p.done).length;
+        const totalPercent = Math.round((doneCount / 15) * 100);
         document.getElementById('totalPts').textContent = userData.points;
-        document.getElementById('welcomeText').textContent = `歡迎，${userData.profile.name || '創業家'}`;
+        document.getElementById('welcomeText').innerHTML = `歡迎，${userData.profile.name || '創業家'} <span style="font-size:12px; color:#888;">(進度: ${totalPercent}%)</span>`;
+        
         const list = document.getElementById('modulesList');
         list.innerHTML = '';
         moduleTitles.forEach((t, i) => {
             const m = userData.progress[i];
             const card = document.createElement('div');
             card.className = `module-card ${m.unlocked ? 'unlocked' : 'locked'} ${m.done ? 'completed' : ''}`;
-            card.innerHTML = `<strong>${t}</strong> ${!m.unlocked ? '🔒' : (m.done ? '✅' : '▶️')}`;
+            
+            const pBar = m.done ? `<div class="progress-container"><div class="progress-bar" style="width: 100%"></div></div>` : 
+                        (m.unlocked ? `<div class="progress-container"><div class="progress-bar" style="width: 0%"></div></div>` : '');
+
+            card.innerHTML = `<strong>${t}</strong> ${!m.unlocked ? '🔒' : (m.done ? '✅' : '▶️')} ${pBar}`;
             if (m.unlocked) card.onclick = () => openMod(i);
             list.appendChild(card);
         });
@@ -200,7 +225,7 @@
 
     window.openMod = (i) => {
         if (!window.auth.currentUser || !userData.profile.name) {
-            alert("🔒 請先完成「註冊」並「填寫會員姓名」，才能開始課程！");
+            alert("🔒 請先登入並完成會員資料填寫，才能開始課程！");
             openModal('authModal');
             return;
         }
@@ -214,7 +239,8 @@
 
     window.submitProgress = async () => {
         const comment = document.getElementById('userComment').value.trim();
-        if (comment.length < 5) return alert("心得請至少輸入5個字");
+        if (comment.length < 50) return alert(`⚠️ 心得字數不足！目前 ${comment.length} 字，請寫滿 50 字心得才能通關。`);
+        
         const m = userData.progress[currentIdx];
         if (!m.done) {
             m.done = true;
@@ -238,7 +264,7 @@
     window.emailLogin = async () => {
         const email = document.getElementById('emailInput').value;
         const pass = document.getElementById('passInput').value;
-        if(!email || !pass) return alert("請輸入信箱與密碼");
+        if(!email || !pass) return alert("請填寫信箱與密碼");
         try {
             await signInWithEmailAndPassword(window.auth, email, pass);
             closeModal('authModal');
@@ -246,7 +272,7 @@
             if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
                 try {
                     await createUserWithEmailAndPassword(window.auth, email, pass);
-                    alert("註冊成功！請填寫基本資料。");
+                    alert("註冊成功！請填寫資料以開始課程。");
                     closeModal('authModal');
                 } catch (e) { alert("註冊失敗: " + e.message); }
             } else { alert("登入失敗: " + error.message); }
@@ -268,18 +294,64 @@
     window.saveProfile = async () => {
         const name = document.getElementById('profName').value.trim();
         const contact = document.getElementById('profContact').value.trim();
+        if (!name || !contact) return alert("姓名與聯絡方式為必填");
         
-        if (!name || !contact) return alert("請填寫姓名與聯絡方式");
+        const btn = document.getElementById('saveBtn');
+        btn.textContent = "⌛ 處理中...";
+        btn.disabled = true;
 
         userData.profile.name = name;
         userData.profile.contact = contact;
         userData.profile.bio = document.getElementById('profBio').value;
         
         await syncToCloud();
-        alert("資料已儲存，歡迎加入創業課程！");
-        closeModal('profileModal');
-        render();
+        setTimeout(() => {
+            alert("資料已更新，啟動您的創業之路！");
+            btn.textContent = "✅ 儲存資料";
+            btn.disabled = false;
+            closeModal('profileModal');
+            render();
+        }, 500);
     };
+
+    // 導師後台邏輯
+    window.toggleAdmin = async () => {
+        const section = document.getElementById('adminSection');
+        if (section.style.display === 'none') {
+            section.style.display = 'block';
+            await loadAdminData();
+        } else { section.style.display = 'none'; }
+    };
+
+    async function loadAdminData() {
+        const adminList = document.getElementById('adminUserList');
+        adminList.innerHTML = "📡 讀取資料中...";
+        const snapshot = await get(ref(window.db, 'users'));
+        if (!snapshot.exists()) return adminList.innerHTML = "暫無學員";
+        
+        const allUsers = snapshot.val();
+        adminList.innerHTML = '';
+        Object.keys(allUsers).forEach(uid => {
+            const u = allUsers[uid];
+            const doneNum = u.progress.filter(p => p.done).length;
+            const drawer = document.createElement('div');
+            drawer.className = 'admin-drawer';
+            drawer.innerHTML = `
+                <div class="drawer-header" onclick="this.nextElementSibling.style.display = (this.nextElementSibling.style.display === 'block' ? 'none' : 'block')">
+                    <span>👤 ${u.profile.name || '未填'} (${Math.round(doneNum/15*100)}%)</span>
+                    <span>${doneNum}/15 ✅</span>
+                </div>
+                <div class="drawer-content">
+                    <p><strong>📞 聯絡方式：</strong>${u.profile.contact || '無'}</p>
+                    <p><strong>💡 創業想法：</strong>${u.profile.bio || '無'}</p>
+                    <hr>
+                    <p><strong>📝 學習心得：</strong></p>
+                    ${u.progress.map(p => p.done ? `<div style="margin-bottom:10px; padding:5px; background:#f9f9f9; border-radius:5px;"><strong>${moduleTitles[p.id]}:</strong><br>${p.comment}</div>` : '').join('')}
+                </div>
+            `;
+            adminList.appendChild(drawer);
+        });
+    }
 
     function saveLocal() { localStorage.setItem('hair_local', JSON.stringify(userData)); }
     function loadLocal() { const s = localStorage.getItem('hair_local'); if(s) userData = JSON.parse(s); }
