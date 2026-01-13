@@ -38,12 +38,11 @@
         nav { position: fixed; top: 0; width: 100%; height: 70px; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); display: flex; justify-content: space-between; align-items: center; padding: 0 30px; box-sizing: border-box; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .nav-right { display: flex; gap: 15px; }
 
-        .nav-badge { display: flex; align-items: center; background: white; padding: 5px 15px; border-radius: 50px; border: 1.5px solid #eee; cursor: pointer; transition: 0.3s; font-weight: bold; font-size: 14px; }
+        .nav-badge { display: flex; align-items: center; background: white; padding: 5px 15px; border-radius: 50px; border: 1.5px solid #eee; cursor: pointer; transition: 0.3s; font-weight: bold; font-size: 14px; color: #444; }
         .nav-badge:hover { border-color: var(--primary); color: var(--primary); }
 
         .container { max-width: 900px; margin: 20px auto; background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
 
-        /* 進度條樣式 */
         .progress-container { width: 100%; height: 8px; background: #eee; border-radius: 10px; margin-top: 10px; overflow: hidden; }
         .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--secondary)); transition: width 0.6s ease; }
         .completed .progress-bar { background: #27ae60; }
@@ -51,20 +50,18 @@
         .module-card { border: 1px solid #eee; border-radius: 15px; padding: 20px; margin-bottom: 15px; cursor: pointer; transition: 0.2s; }
         .module-card:hover { transform: translateY(-2px); border-color: var(--primary); }
         
-        /* 後台資料卡片樣式 */
+        /* 影片容器樣式 */
+        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; border-radius: 15px; overflow: hidden; background: #000; margin-bottom: 20px; }
+        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+
         .admin-user-card { background: #f9f9f9; border-radius: 15px; padding: 20px; margin-bottom: 20px; border-left: 5px solid var(--primary); }
         .admin-comment-box { background: white; padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 14px; border: 1px solid #eee; }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; }
         
-        /* 密碼欄位容器：為了放眼睛圖示 */
         .password-wrapper { position: relative; width: 100%; }
-        .toggle-password { 
-            position: absolute; right: 15px; top: 50%; transform: translateY(-50%); 
-            cursor: pointer; color: #ccc; font-size: 18px; user-select: none;
-        }
-        .toggle-password:hover { color: var(--primary); }
+        .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #ccc; font-size: 18px; }
 
         input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; }
         .action-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
@@ -75,7 +72,7 @@
 <nav>
     <div style="font-weight: bold; color: var(--primary); font-size: 22px;">HolyHair</div>
     <div class="nav-right" id="navAuthArea">
-        <button class="nav-badge" onclick="openModal('authModal')">登入</button>
+        <button class="nav-badge" onclick="openModal('authModal')">登入系統</button>
     </div>
 </nav>
 
@@ -86,30 +83,29 @@
     </div>
 
     <div id="modulePage" style="display:none;">
-        <button onclick="showDashboard()">← 返回列表</button>
-        <h3 id="mTitle"></h3>
+        <button onclick="showDashboard()" style="background:none; border:none; color:#888; cursor:pointer; margin-bottom:15px; font-size:16px;">← 返回課程列表</button>
+        <h3 id="mTitle" style="margin-top:0;"></h3>
         <div id="videoContainer" class="video-wrapper"></div>
-        <textarea id="userComment" rows="5" placeholder="請輸入至少 50 字心得..."></textarea>
-        <button onclick="submitProgress()" class="action-btn">提交心得</button>
+        <textarea id="userComment" rows="5" placeholder="請在此輸入學習心得 (需滿 50 字)..."></textarea>
+        <button onclick="submitProgress()" class="action-btn">提交心得並開啟下一章</button>
     </div>
 </div>
 
 <div id="adminAuthModal" class="modal">
     <div class="modal-content">
-        <div style="font-size: 30px; margin-bottom: 10px;">🔐</div>
-        <h3>導師驗證</h3>
+        <h3>🔐 導師身份驗證</h3>
         <div class="password-wrapper">
-            <input type="password" id="adminPassword" placeholder="輸入密碼">
-            <span class="toggle-password" id="eyeIcon" onclick="togglePasswordVisibility('adminPassword', 'eyeIcon')">👁️</span>
+            <input type="password" id="adminPassword" placeholder="輸入後台密碼">
+            <span class="toggle-password" onclick="togglePass('adminPassword')">👁️</span>
         </div>
         <button onclick="checkAdminPassword()" class="action-btn">驗證進入</button>
-        <button onclick="closeModal('adminAuthModal')" style="background:none; border:none; margin-top:15px; cursor:pointer; color:#888;">取消</button>
+        <button onclick="closeModal('adminAuthModal')" style="background:none; border:none; margin-top:10px; color:#ccc; cursor:pointer;">取消</button>
     </div>
 </div>
 
 <div class="container" id="adminSection" style="display:none;">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
-        <h2>📂 學員詳細資料庫</h2>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2 style="margin:0;">📂 學員管理後台</h2>
         <button class="nav-badge" onclick="closeAdmin()">關閉後台</button>
     </div>
     <div id="adminUserList"></div>
@@ -117,28 +113,17 @@
 
 <div id="profileModal" class="modal">
     <div class="modal-content">
-        <h3>👤 會員中心</h3>
-        <input id="profName" placeholder="真實姓名">
-        <input id="profContact" placeholder="聯絡方式 (Line/電話)">
-        <textarea id="profBio" placeholder="您的創業夢想..."></textarea>
-        <button onclick="saveProfile()" class="action-btn">儲存更新</button>
-        <button onclick="logout()" style="color:#ff4444; background:none; border:none; margin-top:15px; cursor:pointer;">登出帳號</button>
+        <h3>👤 會員資料中心</h3>
+        <input id="profName" placeholder="您的姓名">
+        <input id="profContact" placeholder="您的聯絡方式">
+        <textarea id="profBio" placeholder="您的創業目標..."></textarea>
+        <button onclick="saveProfile()" class="action-btn">儲存資料</button>
+        <button onclick="logout()" style="color:#ff4444; background:none; border:none; margin-top:15px; cursor:pointer;">登出</button>
         <button onclick="closeModal('profileModal')" style="display:block; width:100%; background:none; border:none; color:#ccc; margin-top:10px; cursor:pointer;">關閉</button>
     </div>
 </div>
 
-<div id="authModal" class="modal">
-    <div class="modal-content">
-        <h3>會員登入</h3>
-        <input id="emailInput" placeholder="Email">
-        <div class="password-wrapper">
-            <input id="passInput" type="password" placeholder="Password">
-            <span class="toggle-password" id="loginEyeIcon" onclick="togglePasswordVisibility('passInput', 'loginEyeIcon')">👁️</span>
-        </div>
-        <button onclick="emailLogin()" class="action-btn">確認登入</button>
-        <button onclick="closeModal('authModal')" style="background:none; border:none; color:#888; margin-top:10px; cursor:pointer;">返回</button>
-    </div>
-</div>
+<div id="authModal" class="modal"><div class="modal-content"><h3>會員登入</h3><input id="emailInput" placeholder="Email"><div class="password-wrapper"><input id="passInput" type="password" placeholder="Password"><span class="toggle-password" onclick="togglePass('passInput')">👁️</span></div><button onclick="emailLogin()" class="action-btn">登入 / 註冊</button></div></div>
 
 <script type="module">
     import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -146,31 +131,23 @@
 
     let userData = { points: 0, profile: { name: '', contact: '', bio: '' }, progress: Array(15).fill().map((_, i) => ({ id: i, done: false, comment: '', unlocked: i === 0 })) };
     const moduleTitles = ["0.創業的目的","1.喜愛的市場調查","2.目前的目標市場","3.你的競爭者是誰","4.你的行業趨勢","5.你的技術定位","6.你想如何選址與佈置","7.你的服務配套","8.你的供應鏈要找誰","9.你的人力組織配置","10.你的客戶分級想法","11.有哪些法律規章","12.你的財務管理配置","13.初期投資高低門檻","14.你的獲客變現"];
+    // 核心修復：補回影片 URL 陣列
+    const videoUrls = ["https://drive.google.com/file/d/1gbZn2DTvHiE2B_G06nERXb-Q7AuQvFIh/preview","https://drive.google.com/file/d/1U8qQb6Ob_0pLR-KxtTLDnYcuh0fqqFtW/preview","https://drive.google.com/file/d/1K4_D47lq7gVnBl-OFApHuedFwgC3KAjV/preview","https://drive.google.com/file/d/1O5YKOSNwJkiSZS_4sjJvEI0dwKD-CxnR/preview","https://drive.google.com/file/d/1cC2envJ3VySRqNahyUsLbST1U5Nw-T2I/preview","https://drive.google.com/file/d/1mx6dCQx22q7MVAMaiH3B5570xDGb8etg/preview","https://drive.google.com/file/d/1kvB1EkXtp1xxtduubgPEPKtc_uJu7eK4/preview","https://drive.google.com/file/d/11M2Wpx8cTDlYxyzImPhtniOZUhLXtdiH/preview","https://drive.google.com/file/d/1Aj3GeAjIP561kZbvQ34erVizzbJ5GcZq/preview","https://drive.google.com/file/d/16yrBQAjmQYj5fwOPvvZ5m8LRE287YWQ2/preview","https://drive.google.com/file/d/1kXaekwIciXsdwGy4pKnCyuMkohfOzvo_/preview","https://drive.google.com/file/d/1LmhYPbc-jUBJhtUWv11kIBoXy60yizrJ/preview","https://drive.google.com/file/d/18GQ8LguusbO7nKHRNl9dwdzFmRi1H-Be/preview","https://drive.google.com/file/d/1gY-HmrC_qWmHTOJJ3vV_lnMiN32_RpEH/preview","https://drive.google.com/file/d/1XWDIlKWw_ueGTIhfW8tld2KPp1jD_TBt/preview"];
     let currentIdx = -1;
 
-    // 顯示/隱藏密碼的功能
-    window.togglePasswordVisibility = (inputId, eyeId) => {
-        const input = document.getElementById(inputId);
-        const eye = document.getElementById(eyeId);
-        if (input.type === "password") {
-            input.type = "text";
-            eye.textContent = "🙈"; // 變更圖示
-        } else {
-            input.type = "password";
-            eye.textContent = "👁️";
-        }
+    // 密碼顯示切換
+    window.togglePass = (id) => {
+        const x = document.getElementById(id);
+        x.type = x.type === "password" ? "text" : "password";
     };
 
     onAuthStateChanged(window.auth, async (user) => {
         const area = document.getElementById('navAuthArea');
         if (user) {
             await syncFromCloud(user.uid);
-            area.innerHTML = `
-                <div class="nav-badge" onclick="openModal('adminAuthModal')">📂 後台</div>
-                <div class="nav-badge" onclick="openModal('profileModal')">👤 ${userData.profile.name || '學員'} (🏆 ${userData.points})</div>
-            `;
+            area.innerHTML = `<div class="nav-badge" onclick="openModal('adminAuthModal')">📂 後台</div><div class="nav-badge" onclick="openModal('profileModal')">👤 ${userData.profile.name || '學員'} (🏆 ${userData.points})</div>`;
         } else {
-            area.innerHTML = `<button class="nav-badge" onclick="openModal('authModal')">登入</button>`;
+            area.innerHTML = `<button class="nav-badge" onclick="openModal('authModal')">登入系統</button>`;
         }
         render();
     });
@@ -184,31 +161,34 @@
         } else { alert("密碼錯誤"); }
     };
 
+    // 影片載入邏輯修復
+    window.openMod = (i) => {
+        currentIdx = i;
+        document.getElementById('mTitle').textContent = moduleTitles[i];
+        document.getElementById('videoContainer').innerHTML = `<iframe src="${videoUrls[i]}" allow="autoplay"></iframe>`;
+        document.getElementById('dashboard').style.display = 'none';
+        document.getElementById('modulePage').style.display = 'block';
+    };
+
+    window.showDashboard = () => {
+        document.getElementById('videoContainer').innerHTML = ''; // 關閉影片節省資源
+        document.getElementById('modulePage').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+    };
+
+    // 其他原本穩定的邏輯
     async function loadAdminData() {
         const list = document.getElementById('adminUserList');
         const s = await get(ref(window.db, 'members'));
         if(!s.exists()) return;
         const data = s.val(); list.innerHTML = '';
-        
         Object.keys(data).forEach(uid => {
             const u = data[uid];
             const card = document.createElement('div');
             card.className = 'admin-user-card';
             let progressHtml = '';
-            if(u.progress) {
-                u.progress.forEach((p, idx) => {
-                    if(p.done) {
-                        progressHtml += `<div class="admin-comment-box"><strong>${moduleTitles[idx]}:</strong><br>${p.comment}</div>`;
-                    }
-                });
-            }
-            card.innerHTML = `
-                <div style="font-size:18px; font-weight:bold; color:var(--primary);">${u.profile?.name || '未填姓名'}</div>
-                <div style="font-size:14px; color:#666;">聯絡: ${u.profile?.contact || '無'} | 積分: ${u.points}</div>
-                <div style="margin-top:5px; font-size:13px; color:#444;">夢想: ${u.profile?.bio || '未填'}</div>
-                <div style="margin-top:10px; font-size:14px; font-weight:bold;">📝 心得明細：</div>
-                ${progressHtml || '<div style="color:#ccc;">尚無心得</div>'}
-            `;
+            u.progress.forEach((p, idx) => { if(p.done) progressHtml += `<div class="admin-comment-box"><strong>${moduleTitles[idx]}:</strong><br>${p.comment}</div>`; });
+            card.innerHTML = `<div><strong>${u.profile?.name || '未填'}</strong> | 聯絡: ${u.profile?.contact || '無'} | 積分: ${u.points}</div><div style="font-size:12px; color:#888;">目標: ${u.profile?.bio || '未填'}</div><hr>${progressHtml || '尚無心得'}`;
             list.appendChild(card);
         });
     }
@@ -221,17 +201,12 @@
             const card = document.createElement('div');
             card.className = `module-card ${m.done ? 'completed' : ''}`;
             card.style.opacity = m.unlocked ? '1' : '0.5';
-            card.innerHTML = `<strong>${t} ${m.done ? '✅' : ''}</strong>
-                <div class="progress-container"><div class="progress-bar" style="width: ${m.done?100:(m.unlocked?10:0)}%"></div></div>`;
+            card.innerHTML = `<strong>${t} ${m.done ? '✅' : ''}</strong><div class="progress-container"><div class="progress-bar" style="width: ${m.done?100:(m.unlocked?10:0)}%"></div></div>`;
             if (m.unlocked) card.onclick = () => openMod(i);
             list.appendChild(card);
         });
     };
 
-    window.syncToCloud = async () => { if(window.auth.currentUser) await set(ref(window.db, 'members/' + window.auth.currentUser.uid), userData); };
-    async function syncFromCloud(uid) { const s = await get(ref(window.db, 'members/' + uid)); if(s.exists()) userData = {...userData, ...s.val()}; }
-    window.openMod = (i) => { currentIdx = i; document.getElementById('mTitle').textContent = moduleTitles[i]; document.getElementById('dashboard').style.display='none'; document.getElementById('modulePage').style.display='block'; };
-    window.showDashboard = () => { document.getElementById('modulePage').style.display='none'; document.getElementById('dashboard').style.display='block'; };
     window.submitProgress = async () => {
         if(document.getElementById('userComment').value.length < 50) return alert("心得需滿 50 字");
         userData.progress[currentIdx].done = true;
@@ -240,14 +215,10 @@
         userData.points += 50;
         await syncToCloud(); render(); showDashboard();
     };
-    window.saveProfile = async () => {
-        userData.profile = { name: document.getElementById('profName').value, contact: document.getElementById('profContact').value, bio: document.getElementById('profBio').value };
-        await syncToCloud(); closeModal('profileModal'); render();
-    };
-    window.emailLogin = async () => {
-        try { await signInWithEmailAndPassword(window.auth, document.getElementById('emailInput').value, document.getElementById('passInput').value); closeModal('authModal'); } 
-        catch { await createUserWithEmailAndPassword(window.auth, document.getElementById('emailInput').value, document.getElementById('passInput').value); closeModal('authModal'); }
-    };
+    window.syncToCloud = async () => { if(window.auth.currentUser) await set(ref(window.db, 'members/' + window.auth.currentUser.uid), userData); };
+    async function syncFromCloud(uid) { const s = await get(ref(window.db, 'members/' + uid)); if(s.exists()) userData = {...userData, ...s.val()}; }
+    window.saveProfile = async () => { userData.profile = { name: document.getElementById('profName').value, contact: document.getElementById('profContact').value, bio: document.getElementById('profBio').value }; await syncToCloud(); closeModal('profileModal'); render(); };
+    window.emailLogin = async () => { try { await signInWithEmailAndPassword(window.auth, document.getElementById('emailInput').value, document.getElementById('passInput').value); closeModal('authModal'); } catch { await createUserWithEmailAndPassword(window.auth, document.getElementById('emailInput').value, document.getElementById('passInput').value); closeModal('authModal'); } };
     window.logout = () => { signOut(window.auth); location.reload(); };
     window.openModal = (id) => document.getElementById(id).style.display = 'flex';
     window.closeModal = (id) => document.getElementById(id).style.display = 'none';
