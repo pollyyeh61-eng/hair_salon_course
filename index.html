@@ -43,18 +43,18 @@
         .progress-container { width: 100%; height: 8px; background: #eee; border-radius: 10px; margin-top: 10px; overflow: hidden; }
         .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--secondary)); transition: width 0.6s ease; }
         .completed .progress-bar { background: #27ae60; }
+        
+        /* 後台管理進度條專用 */
+        .admin-progress-bg { background: #ddd; height: 6px; border-radius: 5px; margin-top: 8px; position: relative; }
+        .admin-progress-fill { background: var(--primary); height: 100%; border-radius: 5px; transition: 0.5s; }
+
         .module-card { border: 1px solid #eee; border-radius: 15px; padding: 20px; margin-bottom: 15px; cursor: pointer; }
         .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; border-radius: 15px; overflow: hidden; background: #000; margin-bottom: 20px; }
         .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
         .char-count { text-align: right; font-size: 13px; margin-top: -5px; margin-bottom: 10px; color: #e74c3c; font-weight: bold; }
         .char-count.ready { color: #27ae60; }
 
-        /* 證書樣式 */
-        #certificateArea { 
-            display: none; margin-top: 30px; text-align: center; padding: 40px; 
-            border: 10px double var(--gold); background: #fff; position: relative;
-            color: #333; box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
-        }
+        #certificateArea { display: none; margin-top: 30px; text-align: center; padding: 40px; border: 10px double var(--gold); background: #fff; position: relative; color: #333; }
         .cert-title { font-size: 42px; color: var(--gold); font-weight: bold; margin-bottom: 10px; }
         .cert-name { font-size: 30px; border-bottom: 2px solid #333; display: inline-block; padding: 0 20px; margin: 20px 0; }
         .cert-stamp { position: absolute; bottom: 40px; right: 60px; width: 100px; height: 100px; border: 3px solid #c0392b; border-radius: 50%; color: #c0392b; display: flex; align-items: center; justify-content: center; transform: rotate(-15deg); font-weight: bold; font-size: 20px; opacity: 0.8; }
@@ -63,7 +63,10 @@
         .modal-content { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; }
         input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; }
         .action-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        .gold-btn { background: var(--gold); margin-top: 20px; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3); }
+        .gold-btn { background: var(--gold); margin-top: 20px; }
+        
+        /* 進度加油標語樣式 */
+        .cheer-text { font-size: 14px; color: var(--primary); font-weight: bold; background: #fdf0ff; padding: 8px; border-radius: 10px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
@@ -79,27 +82,19 @@
     <div id="dashboard">
         <h2>課程進度看板</h2>
         <div id="modulesList"></div>
-        
         <div id="certUnlockArea" style="display:none; text-align:center; padding:40px; background:#fff9e6; border-radius:20px; border:2px dashed var(--gold); margin-top:20px;">
             <div style="font-size: 50px;">🎉</div>
             <h3 style="color: var(--gold); margin: 10px 0;">恭喜您！完成所有創業模組</h3>
-            <p>您已具備成為頂尖美髮創業者的完整思維</p>
             <button onclick="showCertificate()" class="action-btn gold-btn">🏆 生成結業證書</button>
         </div>
-
         <div id="certificateArea">
             <div class="cert-title">結業證書</div>
-            <p style="font-size: 18px;">CERTIFICATE OF COMPLETION</p>
-            <br>
             <p>茲證明學員</p>
-            <div class="cert-name" id="certStudentName">您的姓名</div>
+            <div class="cert-name" id="certStudentName"></div>
             <p>已成功完成</p>
-            <h3 style="letter-spacing: 2px;">【 夢幻美髮創業導航課程 】</h3>
-            <p>所有階段訓練，成績合格，特發此證。</p>
-            <br>
-            <p id="certDate" style="color: #666;"></p>
+            <h3>【 夢幻美髮創業導航課程 】</h3>
+            <p id="certDate"></p>
             <div class="cert-stamp">HolyHair<br>導師認證</div>
-            <p style="color:var(--gold); font-size:12px; margin-top:40px;">請截圖保存此證書，開啟您的創業之路</p>
         </div>
     </div>
 
@@ -122,9 +117,27 @@
     </div>
 </div>
 
-<div class="container" id="adminSection" style="display:none;"><div style="display:flex; justify-content:space-between;"><h2>📂 管理後台</h2><button onclick="closeAdmin()">關閉</button></div><div id="adminUserList"></div></div>
+<div class="container" id="adminSection" style="display:none;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h2>📂 學員管理後台</h2>
+        <button class="nav-badge" onclick="closeAdmin()">關閉後台</button>
+    </div>
+    <div id="adminUserList"></div>
+</div>
 
-<div id="profileModal" class="modal"><div class="modal-content"><h3>👤 會員資料</h3><input id="profName" placeholder="姓名"><input id="profContact" placeholder="聯絡方式"><textarea id="profBio" placeholder="創業目標"></textarea><button onclick="saveProfile()" class="action-btn">儲存</button><button onclick="logout()" style="color:red; background:none; border:none; margin-top:15px; cursor:pointer;">登出</button></div></div>
+<div id="profileModal" class="modal">
+    <div class="modal-content">
+        <h3>👤 會員中心</h3>
+        <div id="cheerTag" class="cheer-text"></div>
+        <input id="profName" placeholder="姓名">
+        <input id="profContact" placeholder="聯絡方式">
+        <textarea id="profBio" placeholder="創業目標"></textarea>
+        <button onclick="saveProfile()" class="action-btn">儲存資料</button>
+        <button onclick="logout()" style="color:red; background:none; border:none; margin-top:15px; cursor:pointer;">登出</button>
+        <button onclick="closeModal('profileModal')" style="display:block; width:100%; background:none; border:none; color:#ccc; margin-top:10px; cursor:pointer;">關閉</button>
+    </div>
+</div>
+
 <div id="authModal" class="modal"><div class="modal-content"><h3>登入</h3><input id="emailInput" placeholder="Email"><input id="passInput" type="password" placeholder="Password"><button onclick="emailLogin()" class="action-btn">確認</button></div></div>
 
 <script type="module">
@@ -147,9 +160,20 @@
         if (user) {
             await syncFromCloud(user.uid);
             document.getElementById('navAuthArea').innerHTML = `<div class="nav-badge" onclick="openModal('adminAuthModal')">📂 後台</div><div class="nav-badge" onclick="openModal('profileModal')">👤 ${userData.profile.name || '學員'} (🏆 ${userData.points})</div>`;
+            updateCheerMessage(); // 更新加油標語
         }
         render();
     });
+
+    // 依據進度更新加油標語
+    function updateCheerMessage() {
+        const doneCount = userData.progress.filter(p => p.done).length;
+        const cheerTag = document.getElementById('cheerTag');
+        if (doneCount === 0) cheerTag.textContent = "🚀 創業的第一步已經開始，加油！";
+        else if (doneCount < 7) cheerTag.textContent = `💪 已完成 ${doneCount} 章！基礎正在穩固紮根！`;
+        else if (doneCount < 14) cheerTag.textContent = `🔥 太棒了！已完成 ${doneCount} 章，創業藍圖即將完成！`;
+        else if (doneCount === 15) cheerTag.textContent = "🏆 恭喜結業！你是最優秀的創業者！";
+    }
 
     window.checkAdminPassword = () => {
         if (document.getElementById('adminPassword').value === "0000") {
@@ -171,8 +195,6 @@
     };
 
     window.showDashboard = () => { document.getElementById('modulePage').style.display = 'none'; document.getElementById('dashboard').style.display = 'block'; };
-
-    // 結業證書邏輯
     window.showCertificate = () => {
         document.getElementById('certUnlockArea').style.display = 'none';
         document.getElementById('certStudentName').textContent = userData.profile.name || '親愛的創業夥伴';
@@ -195,9 +217,40 @@
             if (m.unlocked) card.onclick = () => openMod(i);
             list.appendChild(card);
         });
-        // 判定是否解鎖證書入口
         if (allDone) document.getElementById('certUnlockArea').style.display = 'block';
     };
+
+    async function loadAdminData() {
+        const list = document.getElementById('adminUserList');
+        const s = await get(ref(window.db, 'members'));
+        if(!s.exists()) return;
+        const data = s.val(); list.innerHTML = '';
+        Object.keys(data).forEach(uid => {
+            const u = data[uid];
+            const doneCount = u.progress ? u.progress.filter(p => p.done).length : 0;
+            const progressPercent = Math.round((doneCount / 15) * 100);
+            
+            const card = document.createElement('div');
+            card.style = "background:#f9f9f9; padding:20px; border-radius:15px; margin-bottom:20px; border-left:5px solid var(--primary);";
+            let progressHtml = '';
+            if(u.progress) u.progress.forEach((p, idx) => { if(p.done) progressHtml += `<div style="font-size:13px; background:white; padding:8px; border-radius:8px; margin-top:5px; border:1px solid #eee;"><strong>${moduleTitles[idx]}:</strong><br>${p.comment}</div>`; });
+            
+            card.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <strong>${u.profile?.name || '未填'}</strong>
+                    <span style="font-size:12px; color:var(--primary); font-weight:bold;">${progressPercent}% 已完成</span>
+                </div>
+                <div class="admin-progress-bg">
+                    <div class="admin-progress-fill" style="width: ${progressPercent}%;"></div>
+                </div>
+                <div style="font-size:13px; color:#666; margin-top:10px;">聯絡: ${u.profile?.contact || '無'}</div>
+                <hr style="border:0; border-top:1px solid #eee; margin:10px 0;">
+                <div style="font-weight:bold; font-size:13px;">📝 心得：</div>
+                ${progressHtml || '無心得'}
+            `;
+            list.appendChild(card);
+        });
+    }
 
     window.submitProgress = async () => {
         if(document.getElementById('userComment').value.length < 50) return alert("心得需滿 50 字才能晉級喔！");
@@ -208,25 +261,9 @@
         await syncToCloud(); render(); showDashboard();
     };
 
-    async function loadAdminData() {
-        const list = document.getElementById('adminUserList');
-        const s = await get(ref(window.db, 'members'));
-        if(!s.exists()) return;
-        const data = s.val(); list.innerHTML = '';
-        Object.keys(data).forEach(uid => {
-            const u = data[uid];
-            const card = document.createElement('div');
-            card.className = 'admin-user-card';
-            let progressHtml = '';
-            if(u.progress) u.progress.forEach((p, idx) => { if(p.done) progressHtml += `<div class="admin-comment-box"><strong>${moduleTitles[idx]}:</strong><br>${p.comment}</div>`; });
-            card.innerHTML = `<div><strong>${u.profile?.name || '未填'}</strong> | 聯絡: ${u.profile?.contact || '無'}</div><hr>${progressHtml || '無心得'}`;
-            list.appendChild(card);
-        });
-    }
-
     window.syncToCloud = async () => { if(window.auth.currentUser) await set(ref(window.db, 'members/' + window.auth.currentUser.uid), userData); };
     async function syncFromCloud(uid) { const s = await get(ref(window.db, 'members/' + uid)); if(s.exists()) userData = {...userData, ...s.val()}; }
-    window.saveProfile = async () => { userData.profile = { name: document.getElementById('profName').value, contact: document.getElementById('profContact').value, bio: document.getElementById('profBio').value }; await syncToCloud(); closeModal('profileModal'); render(); };
+    window.saveProfile = async () => { userData.profile = { name: document.getElementById('profName').value, contact: document.getElementById('profContact').value, bio: document.getElementById('profBio').value }; await syncToCloud(); updateCheerMessage(); closeModal('profileModal'); render(); };
     window.emailLogin = async () => { try { await signInWithEmailAndPassword(window.auth, document.getElementById('emailInput').value, document.getElementById('passInput').value); closeModal('authModal'); } catch { await createUserWithEmailAndPassword(window.auth, document.getElementById('emailInput').value, document.getElementById('passInput').value); closeModal('authModal'); } };
     window.logout = () => { signOut(window.auth); location.reload(); };
     window.openModal = (id) => document.getElementById(id).style.display = 'flex';
