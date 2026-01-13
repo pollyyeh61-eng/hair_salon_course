@@ -53,38 +53,37 @@
 
         nav {
             position: fixed; top: 0; width: 100%; height: 60px;
-            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px);
             display: flex; justify-content: space-between; align-items: center;
-            padding: 0 20px; box-sizing: border-box; z-index: 1000;
+            padding: 0 15px; box-sizing: border-box; z-index: 1000;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
+        .nav-right { display: flex; gap: 15px; align-items: center; }
+        .nav-link { cursor: pointer; font-size: 14px; color: var(--deep-purple); font-weight: bold; transition: 0.3s; }
+        .nav-link:hover { color: var(--primary-purple); }
+
         .container { max-width: 800px; margin: 20px auto; background: var(--glass-bg); border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         
-        /* 模組卡片 */
         .module-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 15px; border-left: 8px solid #ddd; cursor: pointer; transition: 0.3s; }
         .module-card.unlocked { border-left-color: var(--soft-purple); }
         .module-card.completed { border-left-color: #28a745; background: #f8fff8; }
         .module-card.locked { opacity: 0.5; cursor: not-allowed; }
         
-        /* 進度條 */
         .progress-container { width: 100%; background: #eee; border-radius: 10px; height: 6px; margin-top: 10px; overflow: hidden; }
         .progress-bar { height: 100%; background: var(--soft-purple); transition: width 0.5s; }
         .completed .progress-bar { background: #28a745; }
 
-        /* 彈窗 */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; max-height: 85vh; overflow-y: auto; }
+        .modal-content { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 420px; max-height: 85vh; overflow-y: auto; }
 
         input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        button { background: var(--primary-purple); color: white; padding: 12px 20px; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        button { background: var(--primary-purple); color: white; padding: 10px 18px; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; }
 
-        /* 會員中心專用按鈕 */
         .btn-save { width: 100%; background: var(--primary-purple); }
         .btn-logout { width: 100%; background: transparent !important; color: #ff4444 !important; border: 1px solid #ff4444 !important; margin-top: 15px; }
         .btn-cancel { background: none !important; color: #888 !important; width: 100%; text-decoration: underline; font-size: 14px; margin-top: 10px; }
 
-        /* 導師後台抽屜 */
         .admin-drawer { background: #fff; border: 1px solid #eee; border-radius: 12px; margin-bottom: 10px; }
         .drawer-header { padding: 15px; background: #fdfdfd; cursor: pointer; display: flex; justify-content: space-between; font-weight: bold; }
         .drawer-content { padding: 15px; display: none; border-top: 1px solid #f0f0f0; font-size: 14px; line-height: 1.6; }
@@ -96,13 +95,13 @@
 <body>
 
 <nav>
-    <div style="font-weight: bold; color: var(--primary-purple);">✨ HolyHair Salon</div>
-    <div id="navAuthArea">
+    <div style="font-weight: bold; color: var(--primary-purple); font-size: 18px;">✨ HolyHair</div>
+    <div class="nav-right" id="navAuthArea">
         <button onclick="openModal('authModal')">註冊 / 登入</button>
     </div>
 </nav>
 
-<div class="container">
+<div class="container" id="mainDashboard">
     <div id="dashboard">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
             <h2 id="welcomeText" style="margin:0;">歡迎，創業家</h2>
@@ -112,13 +111,21 @@
     </div>
 
     <div id="modulePage" style="display:none;">
-        <button onclick="showDashboard()" style="background:#666; margin-bottom: 15px;">← 返回列表</button>
+        <button onclick="showDashboard()" style="background:#666; margin-bottom: 15px;">← 返回課程</button>
         <h3 id="mTitle"></h3>
         <div class="video-wrapper" id="videoContainer"></div>
-        <p style="color: #666; font-size: 14px; margin-top: 15px;">💡 通關任務：請寫下至少 50 字的心得 (通關密碼)。</p>
-        <textarea id="userComment" rows="5" placeholder="寫下您的學習心得..."></textarea>
-        <button onclick="submitProgress()" style="width:100%;">送出心得並領取積分</button>
+        <p style="color: #666; font-size: 14px; margin-top: 15px;">💡 通關任務：請輸入至少 50 字的心得 (通關密碼)。</p>
+        <textarea id="userComment" rows="5" placeholder="在此輸入心得..."></textarea>
+        <button onclick="submitProgress()" style="width:100%;">送出心得並加分</button>
     </div>
+</div>
+
+<div class="container" id="adminSection" style="display:none;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+        <h2 style="color: var(--deep-purple); margin:0;">📂 導師後台管理</h2>
+        <button onclick="closeAdmin()" style="background:#666;">關閉後台</button>
+    </div>
+    <div id="adminUserList"></div>
 </div>
 
 <div id="authModal" class="modal">
@@ -126,7 +133,7 @@
         <h3>會員登入 / 註冊</h3>
         <input type="email" id="emailInput" placeholder="電子信箱">
         <input type="password" id="passInput" placeholder="密碼">
-        <button onclick="emailLogin()" style="width:100%;">確認</button>
+        <button onclick="emailLogin()" style="width:100%;">確認登入</button>
         <hr>
         <button style="width:100%; background:#db4437;" onclick="socialLogin('google')">Google 快速登入</button>
         <button onclick="closeModal('authModal')" class="btn-cancel">取消</button>
@@ -145,13 +152,6 @@
     </div>
 </div>
 
-<div class="container" id="adminSection" style="display:none; margin-top: 40px; border-top: 2px solid #eee; padding-top: 20px;">
-    <h2 style="color: var(--deep-purple);">📂 導師後台管理</h2>
-    <div id="adminUserList"></div>
-</div>
-
-<center><button onclick="toggleAdmin()" style="background:#333; font-size:10px; margin: 40px 0; opacity: 0.3;">切換導師後台</button></center>
-
 <script type="module">
     import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { ref, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -166,11 +166,14 @@
     const videoUrls = ["https://drive.google.com/file/d/1gbZn2DTvHiE2B_G06nERXb-Q7AuQvFIh/preview","https://drive.google.com/file/d/1U8qQb6Ob_0pLR-KxtTLDnYcuh0fqqFtW/preview","https://drive.google.com/file/d/1K4_D47lq7gVnBl-OFApHuedFwgC3KAjV/preview","https://drive.google.com/file/d/1O5YKOSNwJkiSZS_4sjJvEI0dwKD-CxnR/preview","https://drive.google.com/file/d/1cC2envJ3VySRqNahyUsLbST1U5Nw-T2I/preview","https://drive.google.com/file/d/1mx6dCQx22q7MVAMaiH3B5570xDGb8etg/preview","https://drive.google.com/file/d/1kvB1EkXtp1xxtduubgPEPKtc_uJu7eK4/preview","https://drive.google.com/file/d/11M2Wpx8cTDlYxyzImPhtniOZUhLXtdiH/preview","https://drive.google.com/file/d/1Aj3GeAjIP561kZbvQ34erVizzbJ5GcZq/preview","https://drive.google.com/file/d/16yrBQAjmQYj5fwOPvvZ5m8LRE287YWQ2/preview","https://drive.google.com/file/d/1kXaekwIciXsdwGy4pKnCyuMkohfOzvo_/preview","https://drive.google.com/file/d/1LmhYPbc-jUBJhtUWv11kIBoXy60yizrJ/preview","https://drive.google.com/file/d/18GQ8LguusbO7nKHRNl9dwdzFmRi1H-Be/preview","https://drive.google.com/file/d/1gY-HmrC_qWmHTOJJ3vV_lnMiN32_RpEH/preview","https://drive.google.com/file/d/1XWDIlKWw_ueGTIhfW8tld2KPp1jD_TBt/preview"];
     let currentIdx = -1;
 
-    // 監聽登入狀態
     onAuthStateChanged(window.auth, async (user) => {
         if (user) {
-            document.getElementById('navAuthArea').innerHTML = `<div onclick="openModal('profileModal')" style="cursor:pointer">👤 會員中心</div>`;
             await syncFromCloud(user.uid);
+            // 登入後更新導航列：顯示後台與會員中心
+            document.getElementById('navAuthArea').innerHTML = `
+                <div class="nav-link" onclick="toggleAdmin()">📂 後台</div>
+                <div class="nav-link" onclick="openModal('profileModal')">👤 會員中心</div>
+            `;
             if (!userData.profile.name) {
                 document.getElementById('profCloseBtn').style.display = 'none';
                 openModal('profileModal');
@@ -184,7 +187,6 @@
         render();
     });
 
-    // 改為 members 路徑以符合 Firebase Rules
     async function syncToCloud() {
         if (window.auth.currentUser) {
             await set(ref(window.db, 'members/' + window.auth.currentUser.uid), userData);
@@ -214,10 +216,8 @@
             const m = userData.progress[i];
             const card = document.createElement('div');
             card.className = `module-card ${m.unlocked ? 'unlocked' : 'locked'} ${m.done ? 'completed' : ''}`;
-            
             const pBar = m.done ? `<div class="progress-container"><div class="progress-bar" style="width: 100%"></div></div>` : 
                         (m.unlocked ? `<div class="progress-container"><div class="progress-bar" style="width: 0%"></div></div>` : '');
-
             card.innerHTML = `<strong>${t}</strong> ${!m.unlocked ? '🔒' : (m.done ? '✅' : '▶️')} ${pBar}`;
             if (m.unlocked) card.onclick = () => openMod(i);
             list.appendChild(card);
@@ -226,7 +226,7 @@
 
     window.openMod = (i) => {
         if (!window.auth.currentUser || !userData.profile.name) {
-            alert("🔒 請先登入並填寫會員姓名，才能進入課程！");
+            alert("🔒 請先填寫會員姓名，才能進入課程！");
             openModal('authModal');
             return;
         }
@@ -234,14 +234,14 @@
         document.getElementById('mTitle').textContent = moduleTitles[i];
         document.getElementById('videoContainer').innerHTML = `<iframe src="${videoUrls[i]}"></iframe>`;
         document.getElementById('userComment').value = userData.progress[i].comment;
+        document.getElementById('mainDashboard').style.display = 'block';
         document.getElementById('dashboard').style.display = 'none';
         document.getElementById('modulePage').style.display = 'block';
     };
 
     window.submitProgress = async () => {
         const comment = document.getElementById('userComment').value.trim();
-        if (comment.length < 50) return alert(`⚠️ 心得字數不足！目前 ${comment.length} 字，需滿 50 字才能領點數。`);
-        
+        if (comment.length < 50) return alert(`⚠️ 字數不足！目前 ${comment.length} 字，請填滿 50 字心得。`);
         const m = userData.progress[currentIdx];
         if (!m.done) {
             m.done = true;
@@ -254,63 +254,43 @@
         showDashboard();
     };
 
-    window.openModal = (id) => document.getElementById(id).style.display = 'flex';
-    window.closeModal = (id) => document.getElementById(id).style.display = 'none';
     window.showDashboard = () => {
         document.getElementById('videoContainer').innerHTML = '';
         document.getElementById('modulePage').style.display = 'none';
         document.getElementById('dashboard').style.display = 'block';
     };
 
-    window.emailLogin = async () => {
-        const email = document.getElementById('emailInput').value;
-        const pass = document.getElementById('passInput').value;
-        if(!email || !pass) return alert("請輸入信箱與密碼");
-        try {
-            await signInWithEmailAndPassword(window.auth, email, pass);
-            closeModal('authModal');
-        } catch (error) {
-            if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-                try {
-                    await createUserWithEmailAndPassword(window.auth, email, pass);
-                    alert("註冊成功！請填寫資料啟動課程。");
-                    closeModal('authModal');
-                } catch (e) { alert("註冊失敗: " + e.message); }
-            } else { alert("登入失敗: " + error.message); }
+    window.toggleAdmin = async () => {
+        const main = document.getElementById('mainDashboard');
+        const admin = document.getElementById('adminSection');
+        if (admin.style.display === 'none') {
+            main.style.display = 'none';
+            admin.style.display = 'block';
+            await loadAdminData();
+        } else {
+            closeAdmin();
         }
     };
 
-    window.socialLogin = async (type) => {
-        const provider = new window.GoogleAuthProvider();
-        await signInWithPopup(window.auth, provider);
-        closeModal('authModal');
+    window.closeAdmin = () => {
+        document.getElementById('mainDashboard').style.display = 'block';
+        document.getElementById('adminSection').style.display = 'none';
     };
 
-    window.logout = () => {
-        signOut(window.auth);
-        closeModal('profileModal');
-        closeModal('authModal');
-    };
-
-    // 優化儲存邏輯，符合 Firebase members 規則
     window.saveProfile = async () => {
         const name = document.getElementById('profName').value.trim();
         const contact = document.getElementById('profContact').value.trim();
-        if (!name || !contact) return alert("姓名與聯絡資訊為必填");
-        
+        if (!name || !contact) return alert("姓名與聯絡資訊必填");
         const btn = document.getElementById('saveBtn');
-        btn.textContent = "⌛ 正在同步雲端...";
+        btn.textContent = "⌛ 同步中...";
         btn.disabled = true;
-
         userData.profile.name = name;
         userData.profile.contact = contact;
         userData.profile.bio = document.getElementById('profBio').value;
-        
         try {
             await syncToCloud();
-            btn.textContent = "✅ 已完成儲存！";
+            btn.textContent = "✅ 已儲存";
             btn.style.background = "#28a745"; 
-            
             setTimeout(() => {
                 btn.disabled = false;
                 btn.textContent = "✅ 儲存資料";
@@ -318,34 +298,19 @@
                 closeModal('profileModal');
                 render();
             }, 600);
-        } catch (e) {
-            alert("寫入權限錯誤，請確認 Firebase Rules 是否已更新至 members 節點");
-            btn.disabled = false;
-            btn.textContent = "❌ 重試儲存";
-        }
+        } catch (e) { alert("儲存失敗"); btn.disabled = false; }
     };
 
-    window.toggleAdmin = async () => {
-        const section = document.getElementById('adminSection');
-        if (section.style.display === 'none') {
-            section.style.display = 'block';
-            await loadAdminData();
-        } else { section.style.display = 'none'; }
-    };
-
-    async function loadAdminData() {
+    window.loadAdminData = async () => {
         const adminList = document.getElementById('adminUserList');
-        adminList.innerHTML = "📡 讀取資料中...";
+        adminList.innerHTML = "📡 讀取中...";
         const snapshot = await get(ref(window.db, 'members'));
         if (!snapshot.exists()) return adminList.innerHTML = "暫無學員";
-        
         const allMembers = snapshot.val();
         adminList.innerHTML = '';
         Object.keys(allMembers).forEach(uid => {
             const u = allMembers[uid];
-            // 過濾掉沒有填寫課程姓名的人 (避開純 POS 資料)
             if (!u.profile || !u.profile.name) return;
-
             const doneNum = u.progress ? u.progress.filter(p => p.done).length : 0;
             const drawer = document.createElement('div');
             drawer.className = 'admin-drawer';
@@ -355,17 +320,37 @@
                     <span>${doneNum}/15 ✅</span>
                 </div>
                 <div class="drawer-content">
-                    <p><strong>📞 聯絡方式：</strong>${u.profile.contact || '未填'}</p>
+                    <p><strong>📞 聯絡：</strong>${u.profile.contact || '未填'}</p>
                     <p><strong>💡 創業想法：</strong>${u.profile.bio || '無'}</p>
                     <hr>
-                    <p><strong>📝 通關心得 (50字)：</strong></p>
-                    ${u.progress ? u.progress.map(p => p.done ? `<div style="margin-bottom:10px; padding:8px; background:#f9f9f9; border-radius:6px; font-size:13px;"><strong>${moduleTitles[p.id]}:</strong><br>${p.comment}</div>` : '').join('') : '尚無進度'}
+                    <p><strong>📝 通關心得：</strong></p>
+                    ${u.progress ? u.progress.map(p => p.done ? `<div style="margin-bottom:10px; padding:8px; background:#f9f9f9; border-radius:6px; font-size:13px;"><strong>${moduleTitles[p.id]}:</strong><br>${p.comment}</div>` : '').join('') : ''}
                 </div>
             `;
             adminList.appendChild(drawer);
         });
-    }
+    };
 
+    window.openModal = (id) => document.getElementById(id).style.display = 'flex';
+    window.closeModal = (id) => document.getElementById(id).style.display = 'none';
+    window.emailLogin = async () => {
+        const email = document.getElementById('emailInput').value;
+        const pass = document.getElementById('passInput').value;
+        try {
+            await signInWithEmailAndPassword(window.auth, email, pass);
+            closeModal('authModal');
+        } catch (error) {
+            try {
+                await createUserWithEmailAndPassword(window.auth, email, pass);
+                closeModal('authModal');
+            } catch (e) { alert("失敗: " + e.message); }
+        }
+    };
+    window.socialLogin = async () => {
+        await signInWithPopup(window.auth, new window.GoogleAuthProvider());
+        closeModal('authModal');
+    };
+    window.logout = () => { signOut(window.auth); closeModal('profileModal'); };
     function saveLocal() { localStorage.setItem('hair_local', JSON.stringify(userData)); }
     function loadLocal() { const s = localStorage.getItem('hair_local'); if(s) userData = JSON.parse(s); }
 </script>
