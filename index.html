@@ -24,7 +24,6 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // 設定持久性登入：即使關閉瀏覽器也會記住帳密
         setPersistence(auth, browserLocalPersistence);
 
         window.auth = auth; 
@@ -146,7 +145,6 @@
     const videoUrls = ["https://drive.google.com/file/d/1gbZn2DTvHiE2B_G06nERXb-Q7AuQvFIh/preview","https://drive.google.com/file/d/1U8qQb6Ob_0pLR-KxtTLDnYcuh0fqqFtW/preview","https://drive.google.com/file/d/1K4_D47lq7gVnBl-OFApHuedFwgC3KAjV/preview","https://drive.google.com/file/d/1O5YKOSNwJkiSZS_4sjJvEI0dwKD-CxnR/preview","https://drive.google.com/file/d/1cC2envJ3VySRqNahyUsLbST1U5Nw-T2I/preview","https://drive.google.com/file/d/1mx6dCQx22q7MVAMaiH3B5570xDGb8etg/preview","https://drive.google.com/file/d/1kvB1EkXtp1xxtduubgPEPKtc_uJu7eK4/preview","https://drive.google.com/file/d/11M2Wpx8cTDlYxyzImPhtniOZUhLXtdiH/preview","https://drive.google.com/file/d/1Aj3GeAjIP561kZbvQ34erVizzbJ5GcZq/preview","https://drive.google.com/file/d/16yrBQAjmQYj5fwOPvvZ5m8LRE287YWQ2/preview","https://drive.google.com/file/d/1kXaekwIciXsdwGy4pKnCyuMkohfOzvo_/preview","https://drive.google.com/file/d/1LmhYPbc-jUBJhtUWv11kIBoXy60yizrJ/preview","https://drive.google.com/file/d/18GQ8LguusbO7nKHRNl9dwdzFmRi1H-Be/preview","https://drive.google.com/file/d/1gY-HmrC_qWmHTOJJ3vV_lnMiN32_RpEH/preview","https://drive.google.com/file/d/1XWDIlKWw_ueGTIhfW8tld2KPp1jD_TBt/preview"];
     let currentIdx = -1;
 
-    // 監聽登入狀態與同步資料
     onAuthStateChanged(window.auth, async (user) => {
         if (user) {
             document.getElementById('navAuthArea').innerHTML = `<div onclick="openModal('profileModal')" style="cursor:pointer">👤 會員中心</div>`;
@@ -169,7 +167,6 @@
         const snapshot = await get(ref(window.db, 'users/' + uid));
         if (snapshot.exists()) {
             userData = snapshot.val();
-            // 更新會員中心欄位
             document.getElementById('profName').value = userData.profile.name || '';
             document.getElementById('profContact').value = userData.profile.contact || '';
             document.getElementById('profBio').value = userData.profile.bio || '';
@@ -193,7 +190,13 @@
         });
     };
 
+    // --- 修改處：增加登入攔截邏輯 ---
     window.openMod = (i) => {
+        if (!window.auth.currentUser) {
+            alert("🔒 請先登入會員，才能開始修煉課程！");
+            openModal('authModal');
+            return;
+        }
         currentIdx = i;
         document.getElementById('mTitle').textContent = moduleTitles[i];
         document.getElementById('videoContainer').innerHTML = `<iframe src="${videoUrls[i]}"></iframe>`;
