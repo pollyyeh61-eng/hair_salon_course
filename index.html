@@ -10,7 +10,6 @@
         import { getAuth, signInWithPopup, GoogleAuthProvider, OAuthProvider, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // 已更新為您提供的新金鑰 (mentor-app-b76e3)
         const firebaseConfig = {
             apiKey: "AIzaSyAM4d9GqtSjNOlfguew8BktZ8ptrnBzvpc",
             authDomain: "mentor-app-b76e3.firebaseapp.com",
@@ -26,7 +25,6 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        // 持久性登入設定
         setPersistence(auth, browserLocalPersistence);
 
         window.auth = auth; 
@@ -112,25 +110,26 @@
 <div id="authModal" class="modal">
     <div class="modal-content">
         <h3>會員登入 / 註冊</h3>
+        <p style="font-size: 14px; color: #666;">新用戶請輸入 Email 與密碼進行註冊，註冊後請填寫基本資料即可開始課程。</p>
         <input type="email" id="emailInput" placeholder="電子信箱">
         <input type="password" id="passInput" placeholder="密碼">
         <button onclick="emailLogin()" style="width:100%;">信箱登入/註冊</button>
         <hr>
-        <button class="btn-google" onclick="socialLogin('google')" style="width:100%;">Google 登入</button>
-        <button class="btn-apple" onclick="socialLogin('apple')" style="width:100%;">Apple 登入</button>
-        <button onclick="closeModal('authModal')" style="background:none; color:#666; width:100%; margin-top:10px;">取消</button>
+        <button class="btn-google" onclick="socialLogin('google')" style="width:100%;">Google 快速註冊</button>
+        <button onclick="closeModal('authModal')" id="authCloseBtn" style="background:none; color:#666; width:100%; margin-top:10px;">取消</button>
     </div>
 </div>
 
 <div id="profileModal" class="modal">
     <div class="modal-content">
-        <h3>👤 會員中心</h3>
-        <label>姓名</label><input type="text" id="profName">
-        <label>聯絡方式</label><input type="text" id="profContact">
-        <label>自我介紹</label><textarea id="profBio"></textarea>
-        <button onclick="saveProfile()" style="width:100%;">儲存資料</button>
-        <button onclick="logout()" style="width:100%; background:#ff4444; margin-top:10px;">登出</button>
-        <button onclick="closeModal('profileModal')" style="background:none; color:#666; width:100%; margin-top:10px;">關閉</button>
+        <h3>📝 完善會員資料</h3>
+        <p style="font-size: 14px; color: var(--primary-purple);">請填寫以下資訊以正式啟用帳號</p>
+        <label>真實姓名 *</label><input type="text" id="profName" placeholder="例如：王小明">
+        <label>聯絡電話/Line *</label><input type="text" id="profContact" placeholder="方便導師聯繫您">
+        <label>目前的創業想法</label><textarea id="profBio" placeholder="簡述您的夢想..."></textarea>
+        <button onclick="saveProfile()" style="width:100%;">儲存資料並開始課程</button>
+        <button onclick="logout()" style="width:100%; background:#ff4444; margin-top:10px;">取消註冊(登出)</button>
+        <button onclick="closeModal('profileModal')" id="profCloseBtn" style="background:none; color:#666; width:100%; margin-top:10px;">暫時關閉</button>
     </div>
 </div>
 
@@ -152,6 +151,14 @@
         if (user) {
             document.getElementById('navAuthArea').innerHTML = `<div onclick="openModal('profileModal')" style="cursor:pointer">👤 會員中心</div>`;
             await syncFromCloud(user.uid);
+            
+            // 檢查：如果已經登入但沒名字，代表是剛註冊，強制填寫資料
+            if (!userData.profile.name) {
+                document.getElementById('profCloseBtn').style.display = 'none'; // 隱藏關閉按鈕，強制填寫
+                openModal('profileModal');
+            } else {
+                document.getElementById('profCloseBtn').style.display = 'block';
+            }
         } else {
             document.getElementById('navAuthArea').innerHTML = `<button onclick="openModal('authModal')">註冊 / 登入</button>`;
             loadLocal();
@@ -170,8 +177,9 @@
         const snapshot = await get(ref(window.db, 'users/' + uid));
         if (snapshot.exists()) {
             userData = snapshot.val();
-        } else {
-            await syncToCloud();
+            document.getElementById('profName').value = userData.profile.name || '';
+            document.getElementById('profContact').value = userData.profile.contact || '';
+            document.getElementById('profBio').value = userData.profile.bio || '';
         }
     }
 
@@ -191,9 +199,8 @@
     };
 
     window.openMod = (i) => {
-        // 非登入攔截邏輯
-        if (!window.auth.currentUser) {
-            alert("🔒 請先登入會員，才能開始修煉課程！");
+        if (!window.auth.currentUser || !userData.profile.name) {
+            alert("🔒 請先完成「註冊」並「填寫會員姓名」，才能開始課程！");
             openModal('authModal');
             return;
         }
@@ -231,16 +238,23 @@
     window.emailLogin = async () => {
         const email = document.getElementById('emailInput').value;
         const pass = document.getElementById('passInput').value;
+        if(!email || !pass) return alert("請輸入信箱與密碼");
         try {
             await signInWithEmailAndPassword(window.auth, email, pass);
-        } catch {
-            await createUserWithEmailAndPassword(window.auth, email, pass);
+            closeModal('authModal');
+        } catch (error) {
+            if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                try {
+                    await createUserWithEmailAndPassword(window.auth, email, pass);
+                    alert("註冊成功！請填寫基本資料。");
+                    closeModal('authModal');
+                } catch (e) { alert("註冊失敗: " + e.message); }
+            } else { alert("登入失敗: " + error.message); }
         }
-        closeModal('authModal');
     };
 
     window.socialLogin = async (type) => {
-        const provider = type === 'google' ? new window.GoogleAuthProvider() : new window.OAuthProvider('apple.com');
+        const provider = new window.GoogleAuthProvider();
         await signInWithPopup(window.auth, provider);
         closeModal('authModal');
     };
@@ -248,14 +262,21 @@
     window.logout = () => {
         signOut(window.auth);
         closeModal('profileModal');
+        closeModal('authModal');
     };
 
     window.saveProfile = async () => {
-        userData.profile.name = document.getElementById('profName').value;
-        userData.profile.contact = document.getElementById('profContact').value;
+        const name = document.getElementById('profName').value.trim();
+        const contact = document.getElementById('profContact').value.trim();
+        
+        if (!name || !contact) return alert("請填寫姓名與聯絡方式");
+
+        userData.profile.name = name;
+        userData.profile.contact = contact;
         userData.profile.bio = document.getElementById('profBio').value;
+        
         await syncToCloud();
-        alert("資料已更新");
+        alert("資料已儲存，歡迎加入創業課程！");
         closeModal('profileModal');
         render();
     };
