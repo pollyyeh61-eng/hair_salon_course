@@ -1,34 +1,29 @@
-// 定義快取名稱
-const CACHE_NAME = 'holy-hair-v1';
-
-// 定義需要快取的檔案路徑 (請根據你的實際檔案清單修改)
-const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/logo512.png' // 確保這個圖片檔名與你上傳的一致
+const CACHE_NAME = 'holyhair-v1';
+const ASSETS_TO_CACHE = [
+  './',
+  './index.html',
+  './manifest.json',
+  'https://fonts.googleapis.com/css2?family=PingFang+TC:wght@400;600&display=swap'
 ];
 
-// 1. 安裝階段：將資源存入快取
+// 安裝 Service Worker 並快取基本資源
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('正在快取靜態資源');
-        return cache.addAll(urlsToCache);
-      })
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log('Opened cache');
+      return cache.addAll(ASSETS_TO_CACHE);
+    })
   );
 });
 
-// 2. 激活階段：清理舊的快取
+// 激活時清理舊的快取
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
-            console.log('清理舊快取:', cache);
-            return caches.delete(cache);
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
           }
         })
       );
@@ -36,13 +31,11 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// 3. 攔截請求：優先從快取抓取，若無則連網下載
+// 攔截請求，優先從快取中讀取以加速載入
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // 快取命中則回傳，否則發送網路請求
-        return response || fetch(event.request);
-      })
+    caches.match(event.request).then((response) => {
+      return response || fetch(event.request);
+    })
   );
 });
