@@ -10,20 +10,23 @@
         import { getAuth, signInWithPopup, GoogleAuthProvider, OAuthProvider, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+        // 已更新為您提供的新金鑰 (mentor-app-b76e3)
         const firebaseConfig = {
-            apiKey: "AIzaSyCOhBN9TH3UJSOSx5XVyQ08f_2RUckvXYU",
-            authDomain: "holyhairsalon-f73bf.firebaseapp.com",
-            databaseURL: "https://holyhairsalon-f73bf-default-rtdb.firebaseio.com",
-            projectId: "holyhairsalon-f73bf",
-            storageBucket: "holyhairsalon-f73bf.firebasestorage.app",
-            messagingSenderId: "960169055224",
-            appId: "1:960169055224:web:0ffd5e111281a7ecbf3c0d"
+            apiKey: "AIzaSyAM4d9GqtSjNOlfguew8BktZ8ptrnBzvpc",
+            authDomain: "mentor-app-b76e3.firebaseapp.com",
+            databaseURL: "https://mentor-app-b76e3-default-rtdb.firebaseio.com",
+            projectId: "mentor-app-b76e3",
+            storageBucket: "mentor-app-b76e3.firebasestorage.app",
+            messagingSenderId: "757249551762",
+            appId: "1:757249551762:web:445786da005d061947654b",
+            measurementId: "G-7TCY4GRJTR"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
 
+        // 持久性登入設定
         setPersistence(auth, browserLocalPersistence);
 
         window.auth = auth; 
@@ -167,9 +170,6 @@
         const snapshot = await get(ref(window.db, 'users/' + uid));
         if (snapshot.exists()) {
             userData = snapshot.val();
-            document.getElementById('profName').value = userData.profile.name || '';
-            document.getElementById('profContact').value = userData.profile.contact || '';
-            document.getElementById('profBio').value = userData.profile.bio || '';
         } else {
             await syncToCloud();
         }
@@ -190,8 +190,8 @@
         });
     };
 
-    // --- 修改處：增加登入攔截邏輯 ---
     window.openMod = (i) => {
+        // 非登入攔截邏輯
         if (!window.auth.currentUser) {
             alert("🔒 請先登入會員，才能開始修煉課程！");
             openModal('authModal');
