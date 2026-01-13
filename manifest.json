@@ -1,32 +1,22 @@
 {
-  "name": "活力美髮學堂官網",
-  "short_name": "活力美髮學堂官網",
-  "start_url": "/index.html",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#000000",
-  "lang": "zh-TW",
+  "short_name": "HolyHair",
+  "name": "HolyHair 夢幻美髮創業課程",
   "icons": [
     {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-"screenshots": [
-  {
-    "src": "screenshot1.png",
-    "sizes": "1080x1920",
-    "type": "image/png",
-    "form_factor": "narrow",
-    "label": "手機版畫面"
-  },
-  {
-    "src": "screenshot2.png",
-    "sizes": "1920x1080",
-    "type": "image/png",
-    "form_factor": "wide",
-    "label": "電腦版畫面"
-  }
-]
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
     }
-  ]
+  ],
+  "start_url": "./index.html",
+  "background_color": "#8e44ad",
+  "display": "standalone",
+  "scope": "./",
+  "theme_color": "#8e44ad",
+  "description": "專業美髮創業導師課程與進度追蹤系統"
 }
