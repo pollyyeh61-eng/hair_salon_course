@@ -2,30 +2,25 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>美髮創業遊戲化課程</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>夢幻美髮創業課程</title>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
-        /* ==================== 夢幻炫彩主題設定 ==================== */
         :root {
             --primary-purple: #8a2be2;
             --soft-purple: #b388ff;
             --deep-purple: #4b0082;
-            --magic-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --glass-bg: rgba(255, 255, 255, 0.85);
-            --neon-glow: 0 0 15px rgba(138, 43, 226, 0.5);
+            --glass-bg: rgba(255, 255, 255, 0.9);
         }
 
         body {
             font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
             margin: 0;
-            padding: 20px;
-            /* 炫彩背景 */
+            padding: 10px; /* 手機版留白縮小 */
             background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
             color: var(--deep-purple);
-            line-height: 1.6;
             min-height: 100vh;
         }
 
@@ -36,390 +31,221 @@
         }
 
         .container {
-            max-width: 1000px;
-            margin: 20px auto;
+            max-width: 900px;
+            margin: 10px auto;
             background-color: var(--glass-bg);
             backdrop-filter: blur(10px);
-            border-radius: 24px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
 
-        h1, h2, h3 {
-            color: var(--deep-purple);
-            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
-        }
-
-        /* 紫色系按鈕 */
-        button {
-            background: var(--magic-gradient);
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            box-shadow: var(--neon-glow);
-        }
-
-        button:hover:not(:disabled) {
-            transform: scale(1.05);
-            box-shadow: 0 0 25px rgba(138, 43, 226, 0.8);
-        }
-
-        /* ==================== 儀表板樣式 ==================== */
+        /* 響應式 Header */
         .dashboard-header {
             display: flex;
+            flex-direction: row;
             justify-content: space-between;
             align-items: center;
-            padding-bottom: 25px;
+            flex-wrap: wrap; /* 自動換行 */
+            gap: 15px;
+            padding-bottom: 20px;
             border-bottom: 2px dashed var(--soft-purple);
-            margin-bottom: 30px;
         }
 
-        .user-level {
-            font-weight: bold;
-            color: var(--primary-purple);
-            background: rgba(138, 43, 226, 0.1);
-            padding: 5px 15px;
-            border-radius: 20px;
+        @media (max-width: 600px) {
+            .dashboard-header { flex-direction: column; text-align: center; }
+            .progress-info { width: 100%; display: flex; flex-direction: column; align-items: center; }
         }
 
-        .points-display {
-            font-size: 2.5em;
-            font-weight: 900;
-            color: var(--primary-purple);
-        }
-
-        /* 總進度條 */
+        /* 進度條樣式 */
         .progress-bar-container {
-            height: 15px;
-            width: 250px;
+            height: 12px;
+            width: 100%;
+            max-width: 200px;
             background-color: #ddd;
             border-radius: 10px;
-            margin-top: 10px;
             overflow: hidden;
-            border: 2px solid white;
+            border: 1px solid #fff;
         }
 
         .progress-bar {
             height: 100%;
             background: linear-gradient(90deg, #ff8a00, #da1b60);
-            transition: width 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 0%;
+            transition: width 0.5s;
         }
 
-        /* ==================== 課程卡片優化 ==================== */
+        /* 課程卡片 RWD */
         .modules-list {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fill, minmax(100%, 1fr)); /* 手機版預設一欄 */
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .modules-list { grid-template-columns: repeat(2, 1fr); } /* 電腦版兩欄 */
         }
 
         .module-card {
             background: white;
-            border-radius: 18px;
-            padding: 20px;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .module-card:hover {
-            transform: translateY(-10px);
-            border-color: var(--soft-purple);
-            box-shadow: 0 15px 30px rgba(138, 43, 226, 0.2);
-        }
-
-        .module-card.status-completed { background-color: #f3e5f5; border-left: 8px solid #9c27b0; }
-        .module-card.status-in-progress { border-left: 8px solid #ff9800; }
-        .module-card.status-not-started { border-left: 8px solid #bdbdbd; }
-
-        /* 卡片內的小進度條 */
-        .card-mini-progress {
-            height: 6px;
-            background: #eee;
-            border-radius: 3px;
-            margin: 10px 0;
-            overflow: hidden;
-        }
-        .card-mini-progress-fill {
-            height: 100%;
-            background: var(--primary-purple);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-
-        /* ==================== 證書與影片頁面 ==================== */
-        #videoPlayer {
-            width: 100%;
             border-radius: 15px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            padding: 15px;
+            border-left: 6px solid var(--soft-purple);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: 0.3s;
         }
 
-        .certificate-container {
-            background: white url('https://www.transparenttextures.com/patterns/white-paper.png');
-            border: 15px double var(--primary-purple);
-            padding: 40px;
-            color: #333;
+        .module-card:active { transform: scale(0.98); } /* 手機點擊反饋 */
+
+        /* 影片容器優化：16:9 比例 */
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 */
+            height: 0;
+            overflow: hidden;
+            border-radius: 12px;
+            background: #000;
+            margin: 20px 0;
         }
 
-        .recipient-name {
-            color: var(--primary-purple) !important;
-            text-decoration: underline;
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
         }
+
+        button {
+            background: var(--primary-purple);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .points-text { color: var(--primary-purple); font-weight: 900; font-size: 1.5em; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div id="dashboard">
-            <div class="dashboard-header">
-                <div class="user-info">
-                    <h2>✨ 歡迎回來，<span id="userNameDisplay" style="color:var(--primary-purple)">訪客</span> ✨</h2>
-                    <p class="user-level" id="userLevelDisplay">載入中...</p>
-                </div>
-                <div class="progress-info">
-                    <span class="points-display">
-                        <span id="userPointsDisplay">0</span> <small style="font-size: 0.4em">PTS</small>
-                    </span>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" id="progressBar" style="width: 0%;"></div>
-                    </div>
-                    <p style="font-size: 0.8em; margin: 5px 0 0 0;">總成長進度</p>
+
+<div class="container">
+    <div id="dashboard">
+        <div class="dashboard-header">
+            <div>
+                <h2 style="margin:0;">✨ <span id="userName">創業家</span></h2>
+                <span id="userLevel" style="font-size: 0.9em; color: var(--primary-purple);">初階學徒</span>
+            </div>
+            <div class="progress-info">
+                <div class="points-text"><span id="userPoints">0</span> PTS</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="mainProgressBar"></div>
                 </div>
             </div>
-
-            <h3 style="margin-bottom: 20px;">🔮 您的創業修煉路徑</h3>
-            <main class="modules-list" id="modulesList">
-                </main>
         </div>
-
-        <div id="modulePage" style="display:none;">
-            <button id="backToDashboardBtn" style="margin-bottom: 20px;">🔮 返回修煉清單</button>
-            <h2 id="moduleTitle" style="color: var(--primary-purple);"></h2>
-            <p id="moduleSubtitle"></p>
-            <div class="video-player-container">
-                <video id="videoPlayer" controls preload="metadata"></video>
-            </div>
-            <p style="text-align: center; color: var(--primary-purple); font-weight: bold; margin-top: 10px;">
-                💡 觀看至 100% 即可自動獲得創業點數
-            </p>
-        </div>
-
-        <div id="certificatePage" style="display:none; flex-direction: column; align-items: center;">
-            <div class="certificate-container" id="certificateContent">
-                <div class="certificate-content" style="text-align: center;">
-                    <h1 style="font-size: 3em;">🎓 創業導師結業證書</h1>
-                    <p style="font-size: 1.5em;">特此證明</p>
-                    <h2 class="recipient-name" id="certificateUserName" style="font-size: 3.5em; margin: 20px 0;"></h2>
-                    <p style="font-size: 1.2em;">已成功修畢</p>
-                    <h3 id="certificateCourseName" style="font-size: 2em; color: var(--deep-purple);"></h3>
-                    <p>正式具備美髮沙龍經營之初階導師資格</p>
-                    <div style="margin-top: 50px; display: flex; justify-content: space-around;">
-                        <div>
-                            <div style="border-bottom: 2px solid #333; width: 150px; margin-bottom: 10px;"></div>
-                            <p>數位校長簽署</p>
-                        </div>
-                        <div>
-                            <p id="certificateCompletionDate"></p>
-                            <p>頒發日期</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div style="margin-top: 20px;">
-                <button id="downloadCertificateBtn">🖼️ 下載榮耀證書</button>
-                <button id="backFromCertificateBtn" style="background: #666; margin-left: 10px;">返回首頁</button>
-            </div>
-        </div>
+        
+        <div class="modules-list" id="modulesList"></div>
     </div>
 
-    <script>
-        // 資料結構保持不變，但增加進度條邏輯渲染
-        let currentUserState = {
-            userId: 'guest-user',
-            userName: '美髮創業家',
-            points: 0,
-            level: '初階學徒',
-            currentModuleIndex: -1,
-            modules: [
-                { title: '0. 為何要創業', subtitle: '了解自己適合創業嗎?', points: 50, completed: false, videoUrl: 'https://drive.google.com/file/d/1gbZn2DTvHiE2B_G06nERXb-Q7AuQvFIh/preview', videoProgress: 0 },
-                { title: '1. 市場調查', subtitle: '我的競爭對手是誰？', points: 50, completed: false, videoUrl: 'https://drive.google.com/file/d/1U8qQb6Ob_0pLR-KxtTLDnYcuh0fqqFtW/preview', videoProgress: 0 },
-                { title: '2. 目標客群分析', subtitle: '了解潛在顧客', points: 50, completed: false, videoUrl: 'https://drive.google.com/file/d/1K4_D47lq7gVnBl-OFApHuedFwgC3KAjV/preview', videoProgress: 0 },
-                { title: '3. 競爭者研究', subtitle: '制定有效策略', points: 50, completed: false, videoUrl: 'https://drive.google.com/file/d/1O5YKOSNwJkiSZS_4sjJvEI0dwKD-CxnR/preview', videoProgress: 0 },
-                { title: '4. 行業趨勢與需求評估', subtitle: '了解市場及需求者', points: 50, completed: false, videoUrl: 'https://drive.google.com/file/d/1cC2envJ3VySRqNahyUsLbST1U5Nw-T2I/preview', videoProgress: 0 },
-                { title: '5. 專業化美髮定位', subtitle: '具備獨特性', points: 50, completed: false, videoUrl: 'https://drive.google.com/file/d/1mx6dCQx22q7MVAMaiH3B5570xDGb8etg/preview', videoProgress: 0 },
-                { title: '6. 選址與佈置', subtitle: '選址與佈置是沙龍創業的基石', points: 50, completed: false, videoUrl: 'https://drive.google.com/file/d/1kvB1EkXtp1xxtduubgPEPKtc_uJu7eK4/preview', videoProgress: 0 },
-                { title: '7. 服務專案', subtitle: '品牌就像是你的臉', points: 50, completed: false, videoUrl: 'https://drive.google.com/file/d/11M2Wpx8cTDlYxyzImPhtniOZUhLXtdiH/preview', videoProgress: 0 },
-                { title: '8. 供應鏈管理', subtitle: '提升效率、降低成本', points: 100, completed: false, videoUrl: 'https://drive.google.com/file/d/1Aj3GeAjIP561kZbvQ34erVizzbJ5GcZq/preview', videoProgress: 0 },
-                { title: '9. 人力資源規劃', subtitle: '人員招聘到團隊管理策略', points: 50, completed: false, videoUrl: 'https://drive.google.com/file/d/16yrBQAjmQYj5fwOPvvZ5m8LRE287YWQ2/preview', videoProgress: 0 },
-                { title: '10. 高端客戶服務', subtitle: '為高端客戶提供專屬服務', points: 50, completed: false, videoUrl: 'https://drive.google.com/file/d/1kXaekwIciXsdwGy4pKnCyuMkohfOzvo_/preview', videoProgress: 0 },
-                { title: '11. 法律與合規', subtitle: '開設沙龍所需的法律知識', points: 50, completed: false, videoUrl: 'https://drive.google.com/file/d/1LmhYPbc-jUBJhtUWv11kIBoXy60yizrJ/preview', videoProgress: 0 },
-                { title: '12. 財務管理流程', subtitle: '創業的核心環節', points: 100, completed: false, videoUrl: 'https://drive.google.com/file/d/18GQ8LguusbO7nKHRNl9dwdzFmRi1H-Be/preview', videoProgress: 0 },
-                { title: '13. 低成本創業', subtitle: '如何做低成本創業', points: 100, completed: false, videoUrl: 'https://drive.google.com/file/d/1gY-HmrC_qWmHTOJJ3vV_lnMiN32_RpEH/preview', videoProgress: 0 },
-                { title: '14. 獲客變現', subtitle: '低成本行銷也能獲客變現', points: 100, completed: false, videoUrl: 'https://drive.google.com/file/d/1XWDIlKWw_ueGTIhfW8tld2KPp1jD_TBt/preview', videoProgress: 0 }
-            ],
-            certificateID: null
-        };
+    <div id="modulePage" style="display:none;">
+        <button onclick="goBack()">← 返回列表</button>
+        <h3 id="mTitle" style="margin-top:15px;"></h3>
+        <div class="video-wrapper" id="videoContainer">
+            </div>
+        <button onclick="markAsComplete()" style="width: 100%; background: #28a745;">完成此課程並領取點數</button>
+    </div>
+</div>
 
-        const playerLevelMap = [
-            { threshold: 0, name: '🔮 初階學徒' },
-            { threshold: 300, name: '⚡ 中階經營者' },
-            { threshold: 600, name: '👑 高階策略師' },
-            { threshold: 1000, name: '🌌 創業導師' }
-        ];
+<script>
+    let state = {
+        points: 0,
+        modules: [
+            { title: '0. 為何要創業', url: 'https://drive.google.com/file/d/1gbZn2DTvHiE2B_G06nERXb-Q7AuQvFIh/preview', pts: 50, done: false },
+            { title: '1. 市場調查', url: 'https://drive.google.com/file/d/1U8qQb6Ob_0pLR-KxtTLDnYcuh0fqqFtW/preview', pts: 50, done: false },
+            { title: '2. 目標客群分析', url: 'https://drive.google.com/file/d/1K4_D47lq7gVnBl-OFApHuedFwgC3KAjV/preview', pts: 50, done: false },
+            { title: '3. 競爭者研究', url: 'https://drive.google.com/file/d/1O5YKOSNwJkiSZS_4sjJvEI0dwKD-CxnR/preview', pts: 50, done: false },
+            { title: '4. 行業趨勢評估', url: 'https://drive.google.com/file/d/1cC2envJ3VySRqNahyUsLbST1U5Nw-T2I/preview', pts: 50, done: false },
+            { title: '5. 專業美髮定位', url: 'https://drive.google.com/file/d/1mx6dCQx22q7MVAMaiH3B5570xDGb8etg/preview', pts: 50, done: false },
+            { title: '6. 選址與佈置', url: 'https://drive.google.com/file/d/1kvB1EkXtp1xxtduubgPEPKtc_uJu7eK4/preview', pts: 50, done: false },
+            { title: '7. 服務專案', url: 'https://drive.google.com/file/d/11M2Wpx8cTDlYxyzImPhtniOZUhLXtdiH/preview', pts: 50, done: false },
+            { title: '8. 供應鏈管理', url: 'https://drive.google.com/file/d/1Aj3GeAjIP561kZbvQ34erVizzbJ5GcZq/preview', pts: 100, done: false },
+            { title: '9. 人力資源規劃', url: 'https://drive.google.com/file/d/16yrBQAjmQYj5fwOPvvZ5m8LRE287YWQ2/preview', pts: 50, done: false },
+            { title: '10. 高端客戶服務', url: 'https://drive.google.com/file/d/1kXaekwIciXsdwGy4pKnCyuMkohfOzvo_/preview', pts: 50, done: false },
+            { title: '11. 法律與合規', url: 'https://drive.google.com/file/d/1LmhYPbc-jUBJhtUWv11kIBoXy60yizrJ/preview', pts: 50, done: false },
+            { title: '12. 財務管理流程', url: 'https://drive.google.com/file/d/18GQ8LguusbO7nKHRNl9dwdzFmRi1H-Be/preview', pts: 100, done: false },
+            { title: '13. 低成本創業', url: 'https://drive.google.com/file/d/1gY-HmrC_qWmHTOJJ3vV_lnMiN32_RpEH/preview', pts: 100, done: false },
+            { title: '14. 獲客變現', url: 'https://drive.google.com/file/d/1XWDIlKWw_ueGTIhfW8tld2KPp1jD_TBt/preview', pts: 100, done: false }
+        ],
+        cur: -1
+    };
 
-        // 元素選取器
-        const dashboardDiv = document.getElementById('dashboard');
-        const modulePageDiv = document.getElementById('modulePage');
-        const certificatePageDiv = document.getElementById('certificatePage');
-        const modulesList = document.getElementById('modulesList');
-        const videoPlayer = document.getElementById('videoPlayer');
+    function init() {
+        const saved = localStorage.getItem('hair_biz_sim');
+        if (saved) state = JSON.parse(saved);
+        render();
+    }
 
-        // 渲染畫面
-        function renderDashboard() {
-            document.getElementById('userNameDisplay').textContent = currentUserState.userName;
-            document.getElementById('userPointsDisplay').textContent = currentUserState.points;
-            
-            // 更新等級
-            const currentLevel = [...playerLevelMap].reverse().find(l => currentUserState.points >= l.threshold);
-            currentUserState.level = currentLevel ? currentLevel.name : playerLevelMap[0].name;
-            document.getElementById('userLevelDisplay').textContent = currentUserState.level;
+    function render() {
+        document.getElementById('userPoints').textContent = state.points;
+        const prog = (state.points / 1000) * 100;
+        document.getElementById('mainProgressBar').style.width = prog + '%';
 
-            // 更新總進度條 (以 1000 點為滿分目標)
-            const totalTarget = 1000;
-            const progress = (currentUserState.points / totalTarget) * 100;
-            document.getElementById('progressBar').style.width = `${Math.min(100, progress)}%`;
+        const list = document.getElementById('modulesList');
+        list.innerHTML = '';
+        state.modules.forEach((m, i) => {
+            const card = document.createElement('div');
+            card.className = 'module-card';
+            card.style.opacity = m.done ? '0.7' : '1';
+            card.innerHTML = `
+                <div style="display:flex; justify-content:space-between;">
+                    <strong>${m.title}</strong>
+                    <span>${m.done ? '✅' : '💎'}</span>
+                </div>
+                <div style="font-size:0.8em; margin-top:5px; color:var(--primary-purple);">獎勵: ${m.pts} 點</div>
+            `;
+            card.onclick = () => openMod(i);
+            list.appendChild(card);
+        });
+        localStorage.setItem('hair_biz_sim', JSON.stringify(state));
+    }
 
-            // 渲染列表
-            modulesList.innerHTML = '';
-            currentUserState.modules.forEach((m, i) => {
-                const card = document.createElement('div');
-                const statusClass = m.completed ? 'status-completed' : (m.videoProgress > 0 ? 'status-in-progress' : 'status-not-started');
-                
-                card.className = `module-card ${statusClass}`;
-                card.innerHTML = `
-                    <div>
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                            <h4 style="margin:0; color:var(--deep-purple);">${m.title}</h4>
-                            <span style="font-size:0.7em; padding:3px 8px; border-radius:10px; background:rgba(0,0,0,0.05);">
-                                ${m.completed ? '✅ 已完成' : (m.videoProgress > 0 ? '🕒 學習中' : '🔒 未開始')}
-                            </span>
-                        </div>
-                        <p style="font-size:0.85em; color:#666; margin:10px 0;">${m.subtitle}</p>
-                    </div>
-                    <div>
-                        <div class="card-mini-progress">
-                            <div class="card-mini-progress-fill" style="width: ${m.videoProgress}%"></div>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span style="font-size:0.8em; font-weight:bold; color:var(--primary-purple);">+${m.points} PTS</span>
-                            <span style="font-size:0.7em; color:#999;">${m.videoProgress}%</span>
-                        </div>
-                    </div>
-                `;
-                card.onclick = () => openModule(i);
-                modulesList.appendChild(card);
-            });
+    function openMod(i) {
+        state.cur = i;
+        const m = state.modules[i];
+        document.getElementById('mTitle').textContent = m.title;
+        // 重要：改用 iframe 確保 Google Drive 預覽能跑
+        document.getElementById('videoContainer').innerHTML = `<iframe src="${m.url}" allow="autoplay"></iframe>`;
+        document.getElementById('dashboard').style.display = 'none';
+        document.getElementById('modulePage').style.display = 'block';
+        window.scrollTo(0,0);
+    }
 
-            // 檢查是否達成結業
-            const allDone = currentUserState.modules.every(m => m.completed);
-            if (allDone && !currentUserState.certificateID) {
-                setTimeout(showCertificate, 1000);
-            }
+    function goBack() {
+        document.getElementById('videoContainer').innerHTML = ''; // 停止影片
+        document.getElementById('dashboard').style.display = 'block';
+        document.getElementById('modulePage').style.display = 'none';
+    }
+
+    function markAsComplete() {
+        const m = state.modules[state.cur];
+        if (!m.done) {
+            m.done = true;
+            state.points += m.pts;
+            alert('恭喜獲得 ' + m.pts + ' 點！');
+        } else {
+            alert('這堂課你已經領過點數囉！');
         }
+        render();
+        goBack();
+    }
 
-        function openModule(index) {
-            currentUserState.currentModuleIndex = index;
-            const module = currentUserState.modules[index];
-            
-            document.getElementById('moduleTitle').textContent = module.title;
-            document.getElementById('moduleSubtitle').textContent = module.subtitle;
-            videoPlayer.src = module.videoUrl;
-            
-            videoPlayer.onloadedmetadata = () => {
-                if (module.videoProgress > 0 && module.videoProgress < 95) {
-                    if (confirm(`是否從上次看到的 ${module.videoProgress}% 繼續？`)) {
-                        videoPlayer.currentTime = (module.videoProgress / 100) * videoPlayer.duration;
-                    }
-                }
-                videoPlayer.play();
-            };
+    init();
+</script>
 
-            videoPlayer.ontimeupdate = () => {
-                const prog = Math.floor((videoPlayer.currentTime / videoPlayer.duration) * 100);
-                if (prog > module.videoProgress) {
-                    module.videoProgress = prog;
-                    if (prog % 10 === 0) saveUserState(); // 每 10% 存檔一次
-                }
-            };
-
-            videoPlayer.onended = () => {
-                module.videoProgress = 100;
-                if (!module.completed) {
-                    module.completed = true;
-                    currentUserState.points += module.points;
-                    alert(`🎊 太棒了！你完成了修煉，獲得了 ${module.points} 點！`);
-                }
-                saveUserState();
-                renderDashboard();
-            };
-
-            showPage('module');
-        }
-
-        function showPage(id) {
-            dashboardDiv.style.display = id === 'dashboard' ? 'block' : 'none';
-            modulePageDiv.style.display = id === 'module' ? 'block' : 'none';
-            certificatePageDiv.style.display = id === 'certificate' ? 'flex' : 'none';
-        }
-
-        function showCertificate() {
-            currentUserState.certificateID = 'CERT-' + Date.now();
-            saveUserState();
-            document.getElementById('certificateUserName').textContent = currentUserState.userName;
-            document.getElementById('certificateCourseName').textContent = "美髮沙龍創業戰略課程";
-            document.getElementById('certificateCompletionDate').textContent = new Date().toLocaleDateString();
-            showPage('certificate');
-        }
-
-        function saveUserState() {
-            localStorage.setItem('hairGame_v2', JSON.stringify(currentUserState));
-        }
-
-        function loadUserState() {
-            const saved = localStorage.getItem('hairGame_v2');
-            if (saved) currentUserState = JSON.parse(saved);
-        }
-
-        // 初始化事件
-        window.onload = () => {
-            loadUserState();
-            renderDashboard();
-        };
-
-        document.getElementById('backToDashboardBtn').onclick = () => {
-            videoPlayer.pause();
-            renderDashboard();
-            showPage('dashboard');
-        };
-
-        document.getElementById('backFromCertificateBtn').onclick = () => showPage('dashboard');
-
-        document.getElementById('downloadCertificateBtn').onclick = () => {
-            html2canvas(document.getElementById('certificateContent')).then(canvas => {
-                const link = document.createElement('a');
-                link.download = '創業結業證書.png';
-                link.href = canvas.toDataURL();
-                link.click();
-            });
-        };
-    </script>
 </body>
 </html>
