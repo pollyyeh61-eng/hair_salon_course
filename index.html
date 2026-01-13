@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>夢幻美髮創業 - 專業大氣版</title>
+    <title>夢幻美髮創業 - 專業導師大氣版</title>
     
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
@@ -44,49 +44,46 @@
             margin: 0; padding-top: 80px; min-height: 100vh;
         }
 
-        /* 導覽列：更寬敞 */
+        /* 導覽列 */
         nav {
-            position: fixed; top: 0; width: 100%; height: 70px;
+            position: fixed; top: 0; width: 100%; height: 75px;
             background: var(--glass); backdrop-filter: blur(15px);
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 40px; box-sizing: border-box; z-index: 1000;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 25px rgba(0,0,0,0.06);
         }
 
-        /* 大氣的右上角組合按鈕 */
-        .user-profile-badge {
+        /* 右上角功能區 */
+        .nav-right-area { display: flex; gap: 15px; align-items: center; }
+
+        .nav-badge {
             display: flex; align-items: center;
-            background: white;
-            padding: 5px 5px 5px 20px;
-            border-radius: 50px;
-            border: 1.5px solid #eee;
-            cursor: pointer;
-            transition: 0.3s;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            background: white; padding: 6px 6px 6px 18px;
+            border-radius: 50px; border: 1.5px solid #eee;
+            cursor: pointer; transition: 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
         }
-        .user-profile-badge:hover {
-            border-color: var(--primary);
-            box-shadow: 0 5px 15px rgba(142, 68, 173, 0.15);
-            transform: translateY(-2px);
+        .nav-badge:hover {
+            border-color: var(--primary); transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(142, 68, 173, 0.1);
         }
-        .user-name {
-            font-weight: bold; color: #444; margin-right: 15px; font-size: 15px;
-        }
-        .points-pill {
+
+        .badge-text { font-weight: bold; color: #444; margin-right: 12px; font-size: 14px; }
+        .badge-pill {
             background: var(--primary); color: white;
-            padding: 6px 15px; border-radius: 50px;
-            font-size: 13px; font-weight: bold;
-            display: flex; align-items: center; gap: 5px;
+            padding: 6px 14px; border-radius: 50px;
+            font-size: 12px; font-weight: bold;
         }
+        .admin-pill { background: #34495e; } /* 管理員按鈕用深色，增加專業感 */
 
         /* 主容器 */
         .container {
             max-width: 850px; margin: 20px auto;
-            background: white; border-radius: 28px;
-            padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+            background: white; border-radius: 30px;
+            padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.1);
         }
 
-        /* 進度條：流光漸層 */
+        /* 流光進度條 */
         .progress-container {
             width: 100%; height: 10px; background: #f0f0f0;
             border-radius: 10px; margin-top: 15px; overflow: hidden;
@@ -99,7 +96,6 @@
         }
         .completed .progress-bar { background: linear-gradient(90deg, #27ae60, #2ecc71); }
 
-        /* 模組卡片 */
         .module-card {
             background: #fff; border-radius: 20px; padding: 25px;
             margin-bottom: 20px; border: 1px solid rgba(0,0,0,0.04);
@@ -107,7 +103,7 @@
         }
         .module-card:hover { transform: scale(1.02); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
 
-        /* 彈窗：大氣排版 */
+        /* 彈窗 */
         .modal {
             display: none; position: fixed; top: 0; left: 0;
             width: 100%; height: 100%; background: rgba(0,0,0,0.4);
@@ -115,66 +111,76 @@
             justify-content: center; align-items: center;
         }
         .modal-content {
-            background: white; padding: 45px; border-radius: 35px;
-            width: 90%; max-width: 450px; text-align: center;
+            background: white; padding: 40px; border-radius: 35px;
+            width: 90%; max-width: 420px; text-align: center;
         }
 
         .action-btn { 
             width: 100%; background: var(--primary); color: white; 
-            border: none; padding: 16px; border-radius: 15px; 
-            font-weight: bold; cursor: pointer; font-size: 16px;
-            transition: 0.3s;
+            border: none; padding: 15px; border-radius: 12px; 
+            font-weight: bold; cursor: pointer; transition: 0.3s;
         }
-        .action-btn:hover { background: #732d91; box-shadow: 0 5px 15px rgba(115, 45, 145, 0.3); }
-
-        input, textarea { width: 100%; padding: 15px; margin: 12px 0; border: 1.5px solid #eee; border-radius: 12px; font-size: 15px; box-sizing: border-box; }
-        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; border-radius: 18px; overflow: hidden; background: #000; }
+        input, textarea { width: 100%; padding: 15px; margin: 10px 0; border: 1.5px solid #eee; border-radius: 12px; box-sizing: border-box; }
+        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; border-radius: 20px; overflow: hidden; background: #000; }
         .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
     </style>
 </head>
 <body>
 
 <nav>
-    <div style="font-weight: 800; color: var(--primary); font-size: 24px; letter-spacing: 1px;">HolyHair</div>
-    <div id="navAuthArea">
+    <div style="font-weight: 800; color: var(--primary); font-size: 26px;">HolyHair</div>
+    <div class="nav-right-area" id="navAuthArea">
         <button class="action-btn" style="padding: 8px 25px;" onclick="openModal('authModal')">立即登入</button>
     </div>
 </nav>
 
 <div class="container" id="mainDashboard">
     <div id="dashboard">
-        <h2 style="font-size: 28px; margin-bottom: 30px; color: #333;">創業進度看板</h2>
+        <h2 style="font-size: 28px; margin-bottom: 30px;">創業課程進度</h2>
         <div id="modulesList"></div>
     </div>
 
     <div id="modulePage" style="display:none;">
-        <button onclick="showDashboard()" style="background:none; border:none; color:#999; cursor:pointer; margin-bottom:20px; font-size:16px;">← 返回課程</button>
-        <h3 id="mTitle" style="font-size: 22px; margin-bottom: 20px;"></h3>
+        <button onclick="showDashboard()" style="background:none; border:none; color:#999; cursor:pointer; margin-bottom:20px;">← 返回列表</button>
+        <h3 id="mTitle"></h3>
         <div class="video-wrapper" id="videoContainer"></div>
-        <textarea id="userComment" rows="5" placeholder="分享您的創業心得 (至少 50 字)..." style="margin-top:25px;"></textarea>
-        <button onclick="submitProgress()" class="action-btn">送出心得並晉級</button>
+        <textarea id="userComment" rows="5" placeholder="在此輸入心得..."></textarea>
+        <button onclick="submitProgress()" class="action-btn">送出並晉級</button>
     </div>
+</div>
+
+<div id="adminAuthModal" class="modal">
+    <div class="modal-content">
+        <div style="font-size: 40px;">🔐</div>
+        <h3>導師驗證</h3>
+        <input type="password" id="adminPassword" placeholder="輸入密碼">
+        <button onclick="checkAdminPassword()" class="action-btn">驗證進入</button>
+        <button onclick="closeModal('adminAuthModal')" style="background:none; border:none; color:#ccc; margin-top:15px; cursor:pointer;">取消</button>
+    </div>
+</div>
+
+<div class="container" id="adminSection" style="display:none;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 30px;">
+        <h2 style="margin:0;">📂 學員管理後台</h2>
+        <button onclick="closeAdmin()" class="nav-badge" style="padding:8px 20px; font-weight:bold;">離開後台</button>
+    </div>
+    <div id="adminUserList"></div>
 </div>
 
 <div id="profileModal" class="modal">
     <div class="modal-content">
-        <div style="font-size: 50px; margin-bottom: 10px;">👑</div>
-        <h3 style="font-size: 26px; margin: 10px 0;">專屬創業空間</h3>
-        <p style="color:#888; margin-bottom: 25px;">您的每一小步，都是品牌的一大步</p>
-        <input type="text" id="profName" placeholder="您的品牌稱呼/姓名">
-        <input type="text" id="profContact" placeholder="聯繫方式 (Line/手機)">
-        <textarea id="profBio" placeholder="您的創業目標..."></textarea>
-        <button onclick="saveProfile()" class="action-btn" style="margin-top: 10px;">✅ 更新資料</button>
-        <div style="margin-top: 25px; display: flex; justify-content: space-between;">
-            <button onclick="openModal('adminAuthModal')" style="background:none; border:none; color:var(--primary); cursor:pointer; font-weight:bold;">📂 管理後台</button>
-            <button onclick="logout()" style="background:none; border:none; color:#ff4444; cursor:pointer;">登出帳號</button>
-        </div>
-        <button onclick="closeModal('profileModal')" style="margin-top: 20px; background:none; border:none; color:#ccc; cursor:pointer;">關閉視窗</button>
+        <div style="font-size: 50px;">👑</div>
+        <h3 style="font-size: 26px;">會員中心</h3>
+        <input type="text" id="profName" placeholder="真實姓名">
+        <input type="text" id="profContact" placeholder="Line / 電話">
+        <textarea id="profBio" placeholder="創業想法"></textarea>
+        <button onclick="saveProfile()" class="action-btn">更新資料</button>
+        <button onclick="logout()" style="color:#ff4444; background:none; border:none; margin-top:20px; cursor:pointer;">登出帳號</button>
+        <button onclick="closeModal('profileModal')" style="display:block; width:100%; background:none; border:none; color:#ccc; margin-top:10px; cursor:pointer;">關閉</button>
     </div>
 </div>
 
-<div id="authModal" class="modal"><div class="modal-content"><h3>會員登入</h3><input type="email" id="emailInput" placeholder="Email"><input type="password" id="passInput" placeholder="Password"><button onclick="emailLogin()" class="action-btn">確認</button></div></div>
-<div id="adminAuthModal" class="modal"><div class="modal-content"><h3>導師驗證</h3><input type="password" id="0000" placeholder="輸入密碼"><button onclick="checkAdminPassword()" class="action-btn">驗證</button></div></div>
+<div id="authModal" class="modal"><div class="modal-content"><h3>登入系統</h3><input type="email" id="emailInput" placeholder="Email"><input type="password" id="passInput" placeholder="Password"><button onclick="emailLogin()" class="action-btn">確認</button></div></div>
 
 <script type="module">
     import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -186,22 +192,34 @@
     let currentIdx = -1;
 
     onAuthStateChanged(window.auth, async (user) => {
-        const authArea = document.getElementById('navAuthArea');
+        const area = document.getElementById('navAuthArea');
         if (user) {
             await syncFromCloud(user.uid);
-            // 登入後顯示大氣組合包
-            authArea.innerHTML = `
-                <div class="user-profile-badge" onclick="openModal('profileModal')">
-                    <span class="user-name">${userData.profile.name || '新創家'}</span>
-                    <div class="points-pill">🏆 ${userData.points} Pts</div>
+            area.innerHTML = `
+                <div class="nav-badge" onclick="openModal('adminAuthModal')">
+                    <span class="badge-text">後台</span>
+                    <div class="badge-pill admin-pill">📂</div>
+                </div>
+                <div class="nav-badge" onclick="openModal('profileModal')">
+                    <span class="badge-text">${userData.profile.name || '學員'}</span>
+                    <div class="badge-pill">🏆 ${userData.points}</div>
                 </div>
             `;
             if (!userData.profile.name) openModal('profileModal');
         } else {
-            authArea.innerHTML = `<button class="action-btn" style="padding: 8px 25px;" onclick="openModal('authModal')">立即登入</button>`;
+            area.innerHTML = `<button class="action-btn" style="padding: 8px 25px;" onclick="openModal('authModal')">立即登入</button>`;
         }
         render();
     });
+
+    window.checkAdminPassword = () => {
+        if (document.getElementById('adminPassword').value === "0000") {
+            closeModal('adminAuthModal');
+            document.getElementById('mainDashboard').style.display = 'none';
+            document.getElementById('adminSection').style.display = 'block';
+            loadAdminData();
+        } else { alert("密碼錯誤"); }
+    };
 
     window.render = () => {
         const list = document.getElementById('modulesList');
@@ -211,17 +229,13 @@
             const card = document.createElement('div');
             card.className = `module-card ${m.done ? 'completed' : ''}`;
             card.style.opacity = m.unlocked ? '1' : '0.5';
-            card.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-weight:bold; font-size:18px;">${t}</span>
-                <span>${m.done ? '✅' : (m.unlocked ? '▶️' : '🔒')}</span>
-            </div>
-            <div class="progress-container"><div class="progress-bar" style="width: ${m.done?100:(m.unlocked?10:0)}%"></div></div>`;
+            card.innerHTML = `<div style="display:flex; justify-content:space-between;"><strong>${t}</strong><span>${m.done?'✅':(m.unlocked?'▶️':'🔒')}</span></div>
+                <div class="progress-container"><div class="progress-bar" style="width: ${m.done?100:(m.unlocked?10:0)}%"></div></div>`;
             if (m.unlocked) card.onclick = () => openMod(i);
             list.appendChild(card);
         });
     };
 
-    // (邏輯函數維持不變)
     window.syncToCloud = async () => { if(window.auth.currentUser) await set(ref(window.db, 'members/' + window.auth.currentUser.uid), userData); };
     async function syncFromCloud(uid) { const s = await get(ref(window.db, 'members/' + uid)); if(s.exists()) userData = {...userData, ...s.val()}; }
     window.openMod = (i) => { currentIdx = i; document.getElementById('mTitle').textContent = moduleTitles[i]; document.getElementById('videoContainer').innerHTML = `<iframe src="${videoUrls[i]}"></iframe>`; document.getElementById('dashboard').style.display='none'; document.getElementById('modulePage').style.display='block'; };
@@ -230,8 +244,7 @@
         const c = document.getElementById('userComment').value;
         if(c.length < 50) return alert("心得需滿 50 字");
         userData.progress[currentIdx].done = true;
-        userData.progress[currentIdx].comment = c;
-        if(currentIdx < 14) userData.progress[currentIdx+1].unlocked = true;
+        userData.progress[currentIdx+1].unlocked = true;
         userData.points += (currentIdx === 8 || currentIdx >= 12) ? 100 : 50;
         await syncToCloud(); render(); showDashboard();
     };
@@ -247,8 +260,21 @@
     window.logout = () => { signOut(window.auth); location.reload(); };
     window.openModal = (id) => document.getElementById(id).style.display = 'flex';
     window.closeModal = (id) => document.getElementById(id).style.display = 'none';
-    window.checkAdminPassword = () => { if(document.getElementById('adminPassword').value === "8888") { closeModal('adminAuthModal'); alert("權限確認，管理後台功能已啟動"); } else alert("密碼錯誤"); };
+    window.closeAdmin = () => { document.getElementById('adminSection').style.display = 'none'; document.getElementById('mainDashboard').style.display = 'block'; };
+
+    async function loadAdminData() {
+        const list = document.getElementById('adminUserList');
+        const s = await get(ref(window.db, 'members'));
+        if(!s.exists()) return;
+        const data = s.val(); list.innerHTML = '';
+        Object.keys(data).forEach(uid => {
+            const u = data[uid]; if(!u.profile?.name) return;
+            const d = document.createElement('div');
+            d.style = "background:#f9f9f9; padding:15px; border-radius:15px; margin-bottom:10px; border:1px solid #eee;";
+            d.innerHTML = `<strong>${u.profile.name}</strong> - 積分: ${u.points} Pts <br> <small style="color:#888;">${u.profile.contact}</small>`;
+            list.appendChild(d);
+        });
+    }
 </script>
 </body>
 </html>
-
