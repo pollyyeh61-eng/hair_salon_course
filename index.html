@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>夢幻美髮創業雲課程</title>
+    <title>夢幻美髮創業 - 雲端版</title>
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, OAuthProvider, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAM4d9GqtSjNOlfguew8BktZ8ptrnBzvpc",
@@ -24,71 +24,43 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
-
         setPersistence(auth, browserLocalPersistence);
 
         window.auth = auth; 
         window.db = db; 
-        window.GoogleAuthProvider = GoogleAuthProvider; 
-        window.OAuthProvider = OAuthProvider;
+        window.GoogleAuthProvider = GoogleAuthProvider;
     </script>
 
     <style>
-        :root {
-            --primary-purple: #8a2be2;
-            --soft-purple: #b388ff;
-            --deep-purple: #4b0082;
-            --glass-bg: rgba(255, 255, 255, 0.95);
-        }
+        :root { --primary-purple: #8a2be2; --soft-purple: #b388ff; --deep-purple: #4b0082; --glass-bg: rgba(255, 255, 255, 0.95); }
+        body { font-family: 'PingFang TC', sans-serif; background: #f4f7f6; margin: 0; padding-top: 70px; }
 
-        body {
-            font-family: 'PingFang TC', sans-serif;
-            background: linear-gradient(-45deg, #a18cd1, #fbc2eb, #8fd3f4);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            margin: 0; padding-top: 70px; min-height: 100vh;
-        }
+        nav { position: fixed; top: 0; width: 100%; height: 60px; background: white; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-sizing: border-box; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .nav-right { display: flex; gap: 10px; align-items: center; }
+        .nav-btn { cursor: pointer; font-size: 13px; font-weight: bold; padding: 6px 12px; border-radius: 20px; border: 1px solid var(--primary-purple); color: var(--primary-purple); transition: 0.3s; }
+        .nav-btn:hover { background: var(--primary-purple); color: white; }
 
-        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-
-        nav {
-            position: fixed; top: 0; width: 100%; height: 60px;
-            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px);
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0 15px; box-sizing: border-box; z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .nav-right { display: flex; gap: 15px; align-items: center; }
-        .nav-link { cursor: pointer; font-size: 14px; color: var(--deep-purple); font-weight: bold; transition: 0.3s; }
-        .nav-link:hover { color: var(--primary-purple); }
-
-        .container { max-width: 800px; margin: 20px auto; background: var(--glass-bg); border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .container { max-width: 800px; margin: 20px auto; background: white; border-radius: 15px; padding: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
         
-        .module-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 15px; border-left: 8px solid #ddd; cursor: pointer; transition: 0.3s; }
+        .module-card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 12px; border-left: 6px solid #ddd; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .module-card.unlocked { border-left-color: var(--soft-purple); }
-        .module-card.completed { border-left-color: #28a745; background: #f8fff8; }
-        .module-card.locked { opacity: 0.5; cursor: not-allowed; }
+        .module-card.completed { border-left-color: #28a745; background: #fafffa; }
+        .progress-container { width: 100%; background: #eee; border-radius: 10px; height: 5px; margin-top: 8px; overflow: hidden; }
+        .progress-bar { height: 100%; background: var(--soft-purple); width: 0; transition: 0.5s; }
+        .completed .progress-bar { background: #28a745; width: 100%; }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 400px; }
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
         
-        .progress-container { width: 100%; background: #eee; border-radius: 10px; height: 6px; margin-top: 10px; overflow: hidden; }
-        .progress-bar { height: 100%; background: var(--soft-purple); transition: width 0.5s; }
-        .completed .progress-bar { background: #28a745; }
+        .btn-save { width: 100%; background: var(--primary-purple); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-logout { width: 100%; background: transparent; color: #ff4444; border: 1px solid #ff4444; padding: 10px; border-radius: 8px; margin-top: 15px; cursor: pointer; }
 
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 420px; max-height: 85vh; overflow-y: auto; }
+        .admin-drawer { background: #fdfdfd; border: 1px solid #eee; border-radius: 10px; margin-bottom: 8px; overflow: hidden; }
+        .drawer-header { padding: 12px; cursor: pointer; display: flex; justify-content: space-between; background: #f9f9f9; font-size: 14px; }
+        .drawer-content { padding: 15px; display: none; border-top: 1px solid #eee; font-size: 13px; background: white; }
 
-        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        button { background: var(--primary-purple); color: white; padding: 10px 18px; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; }
-
-        .btn-save { width: 100%; background: var(--primary-purple); }
-        .btn-logout { width: 100%; background: transparent !important; color: #ff4444 !important; border: 1px solid #ff4444 !important; margin-top: 15px; }
-        .btn-cancel { background: none !important; color: #888 !important; width: 100%; text-decoration: underline; font-size: 14px; margin-top: 10px; }
-
-        .admin-drawer { background: #fff; border: 1px solid #eee; border-radius: 12px; margin-bottom: 10px; }
-        .drawer-header { padding: 15px; background: #fdfdfd; cursor: pointer; display: flex; justify-content: space-between; font-weight: bold; }
-        .drawer-content { padding: 15px; display: none; border-top: 1px solid #f0f0f0; font-size: 14px; line-height: 1.6; }
-
-        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; background: #000; }
+        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; border-radius: 10px; overflow: hidden; background: #000; }
         .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
     </style>
 </head>
@@ -97,7 +69,7 @@
 <nav>
     <div style="font-weight: bold; color: var(--primary-purple); font-size: 18px;">✨ HolyHair</div>
     <div class="nav-right" id="navAuthArea">
-        <button onclick="openModal('authModal')">註冊 / 登入</button>
+        <button class="nav-btn" onclick="openModal('authModal')">註冊 / 登入</button>
     </div>
 </nav>
 
@@ -111,49 +83,52 @@
     </div>
 
     <div id="modulePage" style="display:none;">
-        <button onclick="showDashboard()" style="background:#666; margin-bottom: 15px;">← 返回課程</button>
+        <button onclick="showDashboard()" style="background:#666; color:white; border:none; padding:8px 15px; border-radius:5px; margin-bottom:15px; cursor:pointer;">← 返回課程</button>
         <h3 id="mTitle"></h3>
         <div class="video-wrapper" id="videoContainer"></div>
-        <p style="color: #666; font-size: 14px; margin-top: 15px;">💡 通關任務：請輸入至少 50 字的心得 (通關密碼)。</p>
-        <textarea id="userComment" rows="5" placeholder="在此輸入心得..."></textarea>
-        <button onclick="submitProgress()" style="width:100%;">送出心得並加分</button>
+        <p style="color: #666; font-size: 14px;">💡 通關任務：請輸入至少 50 字的心得 (通關密碼)。</p>
+        <textarea id="userComment" rows="4" placeholder="在此輸入心得..."></textarea>
+        <button onclick="submitProgress()" class="btn-save">送出心得並加分</button>
     </div>
 </div>
 
 <div class="container" id="adminSection" style="display:none;">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
-        <h2 style="color: var(--deep-purple); margin:0;">📂 導師後台管理</h2>
-        <button onclick="closeAdmin()" style="background:#666;">關閉後台</button>
+        <h2 style="color: var(--deep-purple); margin:0;">📂 導師管理後台</h2>
+        <button onclick="closeAdmin()" style="background:#666; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">返回</button>
     </div>
     <div id="adminUserList"></div>
 </div>
 
 <div id="authModal" class="modal">
     <div class="modal-content">
-        <h3>會員登入 / 註冊</h3>
+        <h3 style="margin-top:0;">會員登入</h3>
         <input type="email" id="emailInput" placeholder="電子信箱">
         <input type="password" id="passInput" placeholder="密碼">
-        <button onclick="emailLogin()" style="width:100%;">確認登入</button>
-        <hr>
-        <button style="width:100%; background:#db4437;" onclick="socialLogin('google')">Google 快速登入</button>
-        <button onclick="closeModal('authModal')" class="btn-cancel">取消</button>
+        <button onclick="emailLogin()" class="btn-save">確認登入 / 註冊</button>
+        <div style="text-align:center; margin: 15px 0; color:#888;">或</div>
+        <button style="width:100%; background:#db4437; color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;" onclick="socialLogin()">Google 快速登入</button>
+        <button onclick="closeModal('authModal')" style="background:none; border:none; color:#888; width:100%; margin-top:10px; cursor:pointer; text-decoration:underline;">取消</button>
     </div>
 </div>
 
 <div id="profileModal" class="modal">
     <div class="modal-content">
-        <h3 style="text-align:center;">👤 會員中心</h3>
-        <label>真實姓名 *</label><input type="text" id="profName" placeholder="您的姓名">
-        <label>聯絡電話/Line *</label><input type="text" id="profContact" placeholder="聯絡資訊">
-        <label>創業夢想</label><textarea id="profBio" placeholder="想對導師說的話..."></textarea>
+        <h3 style="margin-top:0; text-align:center;">👤 會員中心</h3>
+        <label style="font-size:12px; color:#666;">真實姓名 *</label>
+        <input type="text" id="profName" placeholder="請填寫姓名">
+        <label style="font-size:12px; color:#666;">聯絡資訊 (Line/手機) *</label>
+        <input type="text" id="profContact" placeholder="導師聯繫用">
+        <label style="font-size:12px; color:#666;">創業想法</label>
+        <textarea id="profBio" rows="3" placeholder="簡述您的想法..."></textarea>
         <button onclick="saveProfile()" class="btn-save" id="saveBtn">✅ 儲存資料</button>
-        <button onclick="logout()" class="btn-logout">登出帳號</button>
-        <button onclick="closeModal('profileModal')" id="profCloseBtn" class="btn-cancel">暫時關閉</button>
+        <button onclick="logout()" class="btn-logout">登出目前的帳號</button>
+        <button onclick="closeModal('profileModal')" id="profCloseBtn" style="background:none; border:none; color:#888; width:100%; margin-top:10px; cursor:pointer;">暫時關閉</button>
     </div>
 </div>
 
 <script type="module">
-    import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { ref, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     let userData = {
@@ -166,23 +141,21 @@
     const videoUrls = ["https://drive.google.com/file/d/1gbZn2DTvHiE2B_G06nERXb-Q7AuQvFIh/preview","https://drive.google.com/file/d/1U8qQb6Ob_0pLR-KxtTLDnYcuh0fqqFtW/preview","https://drive.google.com/file/d/1K4_D47lq7gVnBl-OFApHuedFwgC3KAjV/preview","https://drive.google.com/file/d/1O5YKOSNwJkiSZS_4sjJvEI0dwKD-CxnR/preview","https://drive.google.com/file/d/1cC2envJ3VySRqNahyUsLbST1U5Nw-T2I/preview","https://drive.google.com/file/d/1mx6dCQx22q7MVAMaiH3B5570xDGb8etg/preview","https://drive.google.com/file/d/1kvB1EkXtp1xxtduubgPEPKtc_uJu7eK4/preview","https://drive.google.com/file/d/11M2Wpx8cTDlYxyzImPhtniOZUhLXtdiH/preview","https://drive.google.com/file/d/1Aj3GeAjIP561kZbvQ34erVizzbJ5GcZq/preview","https://drive.google.com/file/d/16yrBQAjmQYj5fwOPvvZ5m8LRE287YWQ2/preview","https://drive.google.com/file/d/1kXaekwIciXsdwGy4pKnCyuMkohfOzvo_/preview","https://drive.google.com/file/d/1LmhYPbc-jUBJhtUWv11kIBoXy60yizrJ/preview","https://drive.google.com/file/d/18GQ8LguusbO7nKHRNl9dwdzFmRi1H-Be/preview","https://drive.google.com/file/d/1gY-HmrC_qWmHTOJJ3vV_lnMiN32_RpEH/preview","https://drive.google.com/file/d/1XWDIlKWw_ueGTIhfW8tld2KPp1jD_TBt/preview"];
     let currentIdx = -1;
 
+    // --- 登入監聽 ---
     onAuthStateChanged(window.auth, async (user) => {
+        const authArea = document.getElementById('navAuthArea');
         if (user) {
             await syncFromCloud(user.uid);
-            // 登入後更新導航列：顯示後台與會員中心
-            document.getElementById('navAuthArea').innerHTML = `
-                <div class="nav-link" onclick="toggleAdmin()">📂 後台</div>
-                <div class="nav-link" onclick="openModal('profileModal')">👤 會員中心</div>
+            authArea.innerHTML = `
+                <div class="nav-btn" onclick="toggleAdmin()">📂 後台</div>
+                <div class="nav-btn" onclick="openModal('profileModal')">👤 會員中心</div>
             `;
             if (!userData.profile.name) {
                 document.getElementById('profCloseBtn').style.display = 'none';
                 openModal('profileModal');
-            } else {
-                document.getElementById('profCloseBtn').style.display = 'block';
             }
         } else {
-            document.getElementById('navAuthArea').innerHTML = `<button onclick="openModal('authModal')">註冊 / 登入</button>`;
-            loadLocal();
+            authArea.innerHTML = `<button class="nav-btn" onclick="openModal('authModal')">註冊 / 登入</button>`;
         }
         render();
     });
@@ -191,13 +164,12 @@
         if (window.auth.currentUser) {
             await set(ref(window.db, 'members/' + window.auth.currentUser.uid), userData);
         }
-        saveLocal();
     }
 
     async function syncFromCloud(uid) {
         const snapshot = await get(ref(window.db, 'members/' + uid));
         if (snapshot.exists()) {
-            userData = snapshot.val();
+            userData = { ...userData, ...snapshot.val() };
             document.getElementById('profName').value = userData.profile.name || '';
             document.getElementById('profContact').value = userData.profile.contact || '';
             document.getElementById('profBio').value = userData.profile.bio || '';
@@ -206,9 +178,8 @@
 
     window.render = () => {
         const doneCount = userData.progress.filter(p => p.done).length;
-        const totalPercent = Math.round((doneCount / 15) * 100);
         document.getElementById('totalPts').textContent = userData.points;
-        document.getElementById('welcomeText').innerHTML = `歡迎，${userData.profile.name || '創業家'} <span style="font-size:12px; color:#888;">(${totalPercent}%)</span>`;
+        document.getElementById('welcomeText').innerHTML = `歡迎，${userData.profile.name || '創業家'} <small style="color:#888;">(${Math.round(doneCount/15*100)}%)</small>`;
         
         const list = document.getElementById('modulesList');
         list.innerHTML = '';
@@ -216,32 +187,29 @@
             const m = userData.progress[i];
             const card = document.createElement('div');
             card.className = `module-card ${m.unlocked ? 'unlocked' : 'locked'} ${m.done ? 'completed' : ''}`;
-            const pBar = m.done ? `<div class="progress-container"><div class="progress-bar" style="width: 100%"></div></div>` : 
-                        (m.unlocked ? `<div class="progress-container"><div class="progress-bar" style="width: 0%"></div></div>` : '');
-            card.innerHTML = `<strong>${t}</strong> ${!m.unlocked ? '🔒' : (m.done ? '✅' : '▶️')} ${pBar}`;
+            card.innerHTML = `
+                <strong>${t}</strong> ${!m.unlocked ? '🔒' : (m.done ? '✅' : '▶️')}
+                <div class="progress-container"><div class="progress-bar" style="width: ${m.done?100:0}%"></div></div>
+            `;
             if (m.unlocked) card.onclick = () => openMod(i);
             list.appendChild(card);
         });
     };
 
     window.openMod = (i) => {
-        if (!window.auth.currentUser || !userData.profile.name) {
-            alert("🔒 請先填寫會員姓名，才能進入課程！");
-            openModal('authModal');
-            return;
-        }
+        if (!window.auth.currentUser) return openModal('authModal');
         currentIdx = i;
         document.getElementById('mTitle').textContent = moduleTitles[i];
         document.getElementById('videoContainer').innerHTML = `<iframe src="${videoUrls[i]}"></iframe>`;
-        document.getElementById('userComment').value = userData.progress[i].comment;
-        document.getElementById('mainDashboard').style.display = 'block';
+        document.getElementById('userComment').value = userData.progress[i].comment || '';
         document.getElementById('dashboard').style.display = 'none';
         document.getElementById('modulePage').style.display = 'block';
     };
 
     window.submitProgress = async () => {
         const comment = document.getElementById('userComment').value.trim();
-        if (comment.length < 50) return alert(`⚠️ 字數不足！目前 ${comment.length} 字，請填滿 50 字心得。`);
+        if (comment.length < 50) return alert(`⚠️ 字數不足！目前 ${comment.length} 字，請填寫滿 50 字心得方可通關。`);
+        
         const m = userData.progress[currentIdx];
         if (!m.done) {
             m.done = true;
@@ -254,22 +222,33 @@
         showDashboard();
     };
 
-    window.showDashboard = () => {
-        document.getElementById('videoContainer').innerHTML = '';
-        document.getElementById('modulePage').style.display = 'none';
-        document.getElementById('dashboard').style.display = 'block';
+    window.saveProfile = async () => {
+        const name = document.getElementById('profName').value.trim();
+        const contact = document.getElementById('profContact').value.trim();
+        if (!name || !contact) return alert("姓名與聯絡資訊為必填");
+
+        const btn = document.getElementById('saveBtn');
+        btn.textContent = "⌛ 同步中...";
+        btn.disabled = true;
+
+        userData.profile = { name, contact, bio: document.getElementById('profBio').value };
+        await syncToCloud();
+        
+        btn.textContent = "✅ 已儲存";
+        btn.style.background = "#28a745";
+        setTimeout(() => {
+            btn.textContent = "✅ 儲存資料";
+            btn.style.background = "";
+            btn.disabled = false;
+            closeModal('profileModal');
+            render();
+        }, 600);
     };
 
     window.toggleAdmin = async () => {
-        const main = document.getElementById('mainDashboard');
-        const admin = document.getElementById('adminSection');
-        if (admin.style.display === 'none') {
-            main.style.display = 'none';
-            admin.style.display = 'block';
-            await loadAdminData();
-        } else {
-            closeAdmin();
-        }
+        document.getElementById('mainDashboard').style.display = 'none';
+        document.getElementById('adminSection').style.display = 'block';
+        await loadAdminData();
     };
 
     window.closeAdmin = () => {
@@ -277,84 +256,62 @@
         document.getElementById('adminSection').style.display = 'none';
     };
 
-    window.saveProfile = async () => {
-        const name = document.getElementById('profName').value.trim();
-        const contact = document.getElementById('profContact').value.trim();
-        if (!name || !contact) return alert("姓名與聯絡資訊必填");
-        const btn = document.getElementById('saveBtn');
-        btn.textContent = "⌛ 同步中...";
-        btn.disabled = true;
-        userData.profile.name = name;
-        userData.profile.contact = contact;
-        userData.profile.bio = document.getElementById('profBio').value;
-        try {
-            await syncToCloud();
-            btn.textContent = "✅ 已儲存";
-            btn.style.background = "#28a745"; 
-            setTimeout(() => {
-                btn.disabled = false;
-                btn.textContent = "✅ 儲存資料";
-                btn.style.background = ""; 
-                closeModal('profileModal');
-                render();
-            }, 600);
-        } catch (e) { alert("儲存失敗"); btn.disabled = false; }
-    };
-
     window.loadAdminData = async () => {
-        const adminList = document.getElementById('adminUserList');
-        adminList.innerHTML = "📡 讀取中...";
+        const list = document.getElementById('adminUserList');
+        list.innerHTML = "📡 讀取中...";
         const snapshot = await get(ref(window.db, 'members'));
-        if (!snapshot.exists()) return adminList.innerHTML = "暫無學員";
-        const allMembers = snapshot.val();
-        adminList.innerHTML = '';
-        Object.keys(allMembers).forEach(uid => {
-            const u = allMembers[uid];
+        if (!snapshot.exists()) return list.innerHTML = "暫無資料";
+        
+        const data = snapshot.val();
+        list.innerHTML = '';
+        Object.keys(data).forEach(uid => {
+            const u = data[uid];
             if (!u.profile || !u.profile.name) return;
             const doneNum = u.progress ? u.progress.filter(p => p.done).length : 0;
-            const drawer = document.createElement('div');
-            drawer.className = 'admin-drawer';
-            drawer.innerHTML = `
-                <div class="drawer-header" onclick="this.nextElementSibling.style.display = (this.nextElementSibling.style.display === 'block' ? 'none' : 'block')">
-                    <span>👤 ${u.profile.name} (${Math.round(doneNum/15*100)}%)</span>
-                    <span>${doneNum}/15 ✅</span>
+            const div = document.createElement('div');
+            div.className = 'admin-drawer';
+            div.innerHTML = `
+                <div class="drawer-header" onclick="this.nextElementSibling.style.display = (this.nextElementSibling.style.display==='block'?'none':'block')">
+                    <span>👤 ${u.profile.name}</span><span>${Math.round(doneNum/15*100)}%</span>
                 </div>
                 <div class="drawer-content">
-                    <p><strong>📞 聯絡：</strong>${u.profile.contact || '未填'}</p>
-                    <p><strong>💡 創業想法：</strong>${u.profile.bio || '無'}</p>
+                    <p><strong>📞 聯絡：</strong>${u.profile.contact}</p>
+                    <p><strong>💡 想法：</strong>${u.profile.bio || '無'}</p>
                     <hr>
-                    <p><strong>📝 通關心得：</strong></p>
-                    ${u.progress ? u.progress.map(p => p.done ? `<div style="margin-bottom:10px; padding:8px; background:#f9f9f9; border-radius:6px; font-size:13px;"><strong>${moduleTitles[p.id]}:</strong><br>${p.comment}</div>` : '').join('') : ''}
+                    ${u.progress ? u.progress.map(p => p.done ? `<div style="margin-bottom:8px;"><strong>${moduleTitles[p.id]}:</strong><br>${p.comment}</div>` : '').join('') : ''}
                 </div>
             `;
-            adminList.appendChild(drawer);
+            list.appendChild(div);
         });
     };
 
-    window.openModal = (id) => document.getElementById(id).style.display = 'flex';
-    window.closeModal = (id) => document.getElementById(id).style.display = 'none';
     window.emailLogin = async () => {
         const email = document.getElementById('emailInput').value;
         const pass = document.getElementById('passInput').value;
+        if (!email || !pass) return alert("請填寫完整");
         try {
             await signInWithEmailAndPassword(window.auth, email, pass);
             closeModal('authModal');
-        } catch (error) {
+        } catch (e) {
             try {
                 await createUserWithEmailAndPassword(window.auth, email, pass);
                 closeModal('authModal');
-            } catch (e) { alert("失敗: " + e.message); }
+            } catch (err) { alert("登入失敗: " + err.message); }
         }
     };
+
     window.socialLogin = async () => {
-        await signInWithPopup(window.auth, new window.GoogleAuthProvider());
-        closeModal('authModal');
+        try {
+            await signInWithPopup(window.auth, new window.GoogleAuthProvider());
+            closeModal('authModal');
+        } catch (e) { alert("Google 登入失敗"); }
     };
-    window.logout = () => { signOut(window.auth); closeModal('profileModal'); };
-    function saveLocal() { localStorage.setItem('hair_local', JSON.stringify(userData)); }
-    function loadLocal() { const s = localStorage.getItem('hair_local'); if(s) userData = JSON.parse(s); }
+
+    window.logout = () => { signOut(window.auth); closeModal('profileModal'); location.reload(); };
+    window.openModal = (id) => document.getElementById(id).style.display = 'flex';
+    window.closeModal = (id) => document.getElementById(id).style.display = 'none';
+    window.showDashboard = () => { document.getElementById('modulePage').style.display = 'none'; document.getElementById('dashboard').style.display = 'block'; };
 </script>
 
 </body>
 </html>
-
