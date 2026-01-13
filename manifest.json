@@ -1,6 +1,6 @@
 {
   "short_name": "HolyHair",
-  "name": "HolyHair 夢幻美髮創業課程",
+  "name": "HolyHair 美髮創業雲課程",
   "icons": [
     {
       "src": "icon-192.png",
@@ -20,3 +20,4 @@
   "theme_color": "#8e44ad",
   "description": "專業美髮創業導師課程與進度追蹤系統"
 }
+
