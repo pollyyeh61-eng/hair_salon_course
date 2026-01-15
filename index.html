@@ -64,12 +64,30 @@
         .cert-stamp { position: absolute; bottom: 40px; right: 40px; width: 80px; height: 80px; border: 3px solid #c0392b; border-radius: 50%; color: #c0392b; display: flex; align-items: center; justify-content: center; transform: rotate(-15deg); font-weight: bold; font-size: 16px; opacity: 0.8; }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; }
+        .modal-content { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 450px; text-align: center; max-height: 90vh; overflow-y: auto; }
         input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; }
         .action-btn { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        .action-btn:disabled { background: #ccc; cursor: not-allowed; }
         .gold-btn { background: var(--gold); margin-top: 20px; }
         
         .cheer-text { font-size: 14px; color: var(--primary); font-weight: bold; background: #fdf0ff; padding: 8px; border-radius: 10px; margin-bottom: 15px; }
+
+        /* 協議書專用樣式 */
+        .agreement-box { 
+            text-align: left; 
+            font-size: 12px; 
+            color: #666; 
+            background: #f9f9f9; 
+            padding: 15px; 
+            border-radius: 10px; 
+            height: 150px; 
+            overflow-y: scroll; 
+            border: 1px solid #eee; 
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        .checkbox-container { display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 15px; justify-content: center; }
+        .checkbox-container input { width: auto; margin: 0; }
 
         @media (max-width: 480px) {
             nav div:first-child { font-size: 18px !important; }
@@ -147,7 +165,40 @@
     </div>
 </div>
 
-<div id="authModal" class="modal"><div class="modal-content"><h3>登入</h3><input id="emailInput" placeholder="Email"><input id="passInput" type="password" placeholder="Password"><button onclick="emailLogin()" class="action-btn">確認</button></div></div>
+<div id="authModal" class="modal">
+    <div class="modal-content">
+        <h3>登入 / 註冊</h3>
+        <input id="emailInput" placeholder="Email">
+        <input id="passInput" type="password" placeholder="Password">
+        
+        <div style="text-align: left; margin-top: 15px;">
+            <label style="font-size: 14px; font-weight: bold; color: var(--primary);">2026 學員服務與個資保護條款</label>
+            <div class="agreement-box">
+                為確保 活力美髮學堂（以下簡稱「本平台」）之種子學員（以下簡稱「學員」）權益，並建立嚴謹之數位管理規範，請於啟用 「學堂隨身助理」 及 「導師專屬平台」 前，詳閱以下條款：<br><br>
+                一、 帳號安全與權限規範<br>
+                1. 專屬權限： 本平台核發之登入帳號僅限學員本人使用，嚴禁轉借、租賃或授權他人使用。<br>
+                2. 安全義務： 學員有義務妥善保管密碼。凡經由正確帳號密碼登入後之所有行為（如核銷、扣款），均視為學員本人之操作。<br><br>
+                二、 會員個資與數據處理<br>
+                1. 個資授權： 學員透過 App 蒐集之顧客名單、聯絡方式，其所有權歸屬學員經營之沙龍所有。本平台僅提供雲端儲存與運算技術支持。<br>
+                2. 隱私保護： 本平台承諾採用 AES 數據加密技術 保護資料庫，未經學員授權，本平台不得將學員之客戶數據提供給任何第三方進行商業用途。<br><br>
+                三、 金流、儲值與點數管理（核心重要！）<br>
+                1. 功能定義： 本 App 內顯示之「錢包餘額」與「儲值功能」，目前僅供學員內部管理使用，用於記錄沙龍與其顧客間之預收帳務，本平台不代收、不經手任何實際之法定貨幣。<br>
+                2. 對帳責任： 學員應定期使用「總部對帳系統」進行帳務複核。若因學員端操作錯誤（如溢扣、漏記）導致之帳務紛爭，應由學員與其顧客自行協商解決。<br><br>
+                四、 系統免責聲明<br>
+                1. 開發階段說明： 學員理解本系統目前處於「種子測試階段」。本平台將盡力維護系統穩定，但若因電信業者故障、不可抗力之天災或黑客攻擊導致服務暫時中斷，本平台不負損害賠償責任。<br>
+                2. 更新義務： 本平台保有隨時修改、優化 App 功能之權利，學員應配合更新至最新版本以確保數據安全。<br><br>
+                五、 爭議解決<br>
+                本協議之解釋與適用，以 [台灣/高雄] 地方法院為第一審管轄法院。
+            </div>
+            <div class="checkbox-container">
+                <input type="checkbox" id="agreeCheck" onchange="toggleAuthBtn()">
+                <label for="agreeCheck">我已詳閱並同意上述條款</label>
+            </div>
+        </div>
+        
+        <button id="authConfirmBtn" onclick="emailLogin()" class="action-btn" disabled>確認</button>
+    </div>
+</div>
 
 <script type="module">
     import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -155,15 +206,16 @@
 
     let userData = { points: 0, profile: { name: '', contact: '', bio: '' }, progress: Array(15).fill().map((_, i) => ({ id: i, done: false, comment: '', unlocked: i === 0 })) };
     
-    // 影片課程名稱 (主標題)
     const moduleTitles = ["1. 為何要創業","2. 市場調查","3. 目標客群分析","4. 競爭者研究","5. 行業趨勢與需求評估","6. 專業化美髮定位","7. 選址與佈置","8. 服務專案","9. 供應鏈管理","10. 人力資源規劃","11. 高端客戶服務","12. 法律與合規","13. 財務管理流程","14. 低成本創業"];
-    
-    // 闖關考題 (寫心得時顯示)
     const questQuestions = ["0.你的創業目的?","1.你會做市場調查嗎?","2.你目前的目標市場是什麼?","3.你的競爭者是誰?","4.你的行業趨勢主流是什麼?","5.你的主要技術定位是?","6.你想如何選址與佈置?","7.你的服務配套組合?","8.你的供應鏈要找誰?","9.你的人力組織配置為何?","10.你的客戶分級想法?","11.有哪些法律規章跟你相關?","12.你的財務管理配置如何?","13.初期投資高低門檻?","14.你的獲客如何變現?"];
-
     const videoUrls = ["https://drive.google.com/file/d/1gbZn2DTvHiE2B_G06nERXb-Q7AuQvFIh/preview","https://drive.google.com/file/d/1U8qQb6Ob_0pLR-KxtTLDnYcuh0fqqFtW/preview","https://drive.google.com/file/d/1K4_D47lq7gVnBl-OFApHuedFwgC3KAjV/preview","https://drive.google.com/file/d/1O5YKOSNwJkiSZS_4sjJvEI0dwKD-CxnR/preview","https://drive.google.com/file/d/1cC2envJ3VySRqNahyUsLbST1U5Nw-T2I/preview","https://drive.google.com/file/d/1mx6dCQx22q7MVAMaiH3B5570xDGb8etg/preview","https://drive.google.com/file/d/1kvB1EkXtp1xxtduubgPEPKtc_uJu7eK4/preview","https://drive.google.com/file/d/11M2Wpx8cTDlYxyzImPhtniOZUhLXtdiH/preview","https://drive.google.com/file/d/1Aj3GeAjIP561kZbvQ34erVizzbJ5GcZq/preview","https://drive.google.com/file/d/16yrBQAjmQYj5fwOPvvZ5m8LRE287YWQ2/preview","https://drive.google.com/file/d/1kXaekwIciXsdwGy4pKnCyuMkohfOzvo_/preview","https://drive.google.com/file/d/1LmhYPbc-jUBJhtUWv11kIBoXy60yizrJ/preview","https://drive.google.com/file/d/18GQ8LguusbO7nKHRNl9dwdzFmRi1H-Be/preview","https://drive.google.com/file/d/1gY-HmrC_qWmHTOJJ3vV_lnMiN32_RpEH/preview","https://drive.google.com/file/d/1XWDIlKWw_ueGTIhfW8tld2KPp1jD_TBt/preview"];
     
     let currentIdx = -1;
+
+    window.toggleAuthBtn = () => {
+        const isChecked = document.getElementById('agreeCheck').checked;
+        document.getElementById('authConfirmBtn').disabled = !isChecked;
+    };
 
     window.updateCharCount = () => {
         const len = document.getElementById('userComment').value.length;
@@ -202,7 +254,7 @@
     window.openMod = (i) => {
         currentIdx = i;
         document.getElementById('mTitle').textContent = moduleTitles[i];
-        document.getElementById('questText').textContent = "💡 闖關考題：" + questQuestions[i]; // 加入考題文字
+        document.getElementById('questText').textContent = "💡 闖關考題：" + questQuestions[i];
         document.getElementById('videoContainer').innerHTML = `<iframe src="${videoUrls[i]}"></iframe>`;
         document.getElementById('userComment').value = userData.progress[i].comment || '';
         updateCharCount();
@@ -211,76 +263,3 @@
     };
 
     window.showDashboard = () => { document.getElementById('modulePage').style.display = 'none'; document.getElementById('dashboard').style.display = 'block'; };
-    window.showCertificate = () => {
-        document.getElementById('certUnlockArea').style.display = 'none';
-        document.getElementById('certStudentName').textContent = userData.profile.name || '親愛的創業夥伴';
-        document.getElementById('certDate').textContent = `發證日期：${new Date().toLocaleDateString()}`;
-        document.getElementById('certificateArea').style.display = 'block';
-        window.scrollTo(0, document.body.scrollHeight);
-    };
-
-    window.render = () => {
-        const list = document.getElementById('modulesList');
-        list.innerHTML = '';
-        let allDone = true;
-        moduleTitles.forEach((t, i) => {
-            const m = userData.progress[i];
-            if (!m.done) allDone = false;
-            const card = document.createElement('div');
-            card.className = `module-card`;
-            card.style.opacity = m.unlocked ? '1' : '0.5';
-            card.innerHTML = `<strong>${t} ${m.done ? '✅' : ''}</strong><div class="progress-container"><div class="progress-bar" style="width: ${m.done?100:(m.unlocked?10:0)}%"></div></div>`;
-            if (m.unlocked) card.onclick = () => openMod(i);
-            list.appendChild(card);
-        });
-        if (allDone) document.getElementById('certUnlockArea').style.display = 'block';
-    };
-
-    async function loadAdminData() {
-        const list = document.getElementById('adminUserList');
-        const s = await get(ref(window.db, 'members'));
-        if(!s.exists()) return;
-        const data = s.val(); list.innerHTML = '';
-        Object.keys(data).forEach(uid => {
-            const u = data[uid];
-            const doneCount = u.progress ? u.progress.filter(p => p.done).length : 0;
-            const progressPercent = Math.round((doneCount / 14) * 100);
-            const card = document.createElement('div');
-            card.style = "background:#f9f9f9; padding:20px; border-radius:15px; margin-bottom:20px; border-left:5px solid var(--primary);";
-            let progressHtml = '';
-            if(u.progress) u.progress.forEach((p, idx) => { if(p.done) progressHtml += `<div style="font-size:13px; background:white; padding:8px; border-radius:8px; margin-top:5px; border:1px solid #eee;"><strong>${moduleTitles[idx]}:</strong><br>${p.comment}</div>`; });
-            card.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <strong>${u.profile?.name || '未填'}</strong>
-                    <span style="font-size:12px; color:var(--primary); font-weight:bold;">${progressPercent}%</span>
-                </div>
-                <div class="admin-progress-bg"><div class="admin-progress-fill" style="width: ${progressPercent}%;"></div></div>
-                <div style="font-size:13px; color:#666; margin-top:10px;">聯絡: ${u.profile?.contact || '無'}</div>
-                <hr style="border:0; border-top:1px solid #eee; margin:10px 0;">
-                <div style="font-weight:bold; font-size:13px;">📝 回覆：</div>
-                ${progressHtml || '無回覆'}
-            `;
-            list.appendChild(card);
-        });
-    }
-
-    window.submitProgress = async () => {
-        if(document.getElementById('userComment').value.length < 50) return alert("心得需滿 50 字才能晉級喔！");
-        userData.progress[currentIdx].done = true;
-        userData.progress[currentIdx].comment = document.getElementById('userComment').value;
-        if(currentIdx < 13) userData.progress[currentIdx+1].unlocked = true;
-        userData.points += 50;
-        await syncToCloud(); render(); showDashboard();
-    };
-
-    window.syncToCloud = async () => { if(window.auth.currentUser) await set(ref(window.db, 'members/' + window.auth.currentUser.uid), userData); };
-    async function syncFromCloud(uid) { const s = await get(ref(window.db, 'members/' + uid)); if(s.exists()) userData = {...userData, ...s.val()}; }
-    window.saveProfile = async () => { userData.profile = { name: document.getElementById('profName').value, contact: document.getElementById('profContact').value, bio: document.getElementById('profBio').value }; await syncToCloud(); updateCheerMessage(); closeModal('profileModal'); render(); };
-    window.emailLogin = async () => { try { await signInWithEmailAndPassword(window.auth, document.getElementById('emailInput').value, document.getElementById('passInput').value); closeModal('authModal'); } catch { await createUserWithEmailAndPassword(window.auth, document.getElementById('emailInput').value, document.getElementById('passInput').value); closeModal('authModal'); } };
-    window.logout = () => { signOut(window.auth); location.reload(); };
-    window.openModal = (id) => document.getElementById(id).style.display = 'flex';
-    window.closeModal = (id) => document.getElementById(id).style.display = 'none';
-    window.closeAdmin = () => { document.getElementById('adminSection').style.display = 'none'; document.getElementById('mainDashboard').style.display = 'block'; };
-</script>
-</body>
-</html>
